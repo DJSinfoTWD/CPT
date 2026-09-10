@@ -1,0 +1,2230 @@
+<!DOCTYPE html>
+<html lang="en" data-ts="m">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0F4C5C">
+<title>Cape Town Field Notes</title>
+<style>
+/* Cape Town Field Notes — styles */
+:root{
+  --paper:#FBF7EE; --paper2:#F3EDDF; --ink:#22313A; --ink2:#5A6B74;
+  --ocean:#0F4C5C; --ocean-soft:#DCE9EC; --fynbos:#5C7A5E; --sunset:#C5652F;
+  --line:#D9D0BE; --card:#FFFDF7; --danger:#8C3B2E;
+  --r:10px; --rs:6px;
+  --fs:16px;
+}
+html[data-ts="s"]{--fs:14px} html[data-ts="l"]{--fs:18px} html[data-ts="xl"]{--fs:20px}
+*{box-sizing:border-box}
+html{font-size:var(--fs)}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+h1,h2,.stamp,.plabel,.kicker{
+  font-family:"Iowan Old Style","Palatino Linotype",Palatino,Charter,Georgia,serif;
+}
+h1{font-size:1.65rem;line-height:1.2;margin:.2em 0 .3em}
+h2{font-size:1.15rem;margin:.2em 0 .4em}
+a{color:var(--ocean)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--ocean);outline-offset:2px;border-radius:4px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* layout */
+#app{max-width:640px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column}
+.tophdr{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1rem .3rem}
+.tophdr .brand{font-family:Georgia,serif;font-weight:700;letter-spacing:.02em;color:var(--ocean);font-size:1rem}
+#menuBtn{background:none;border:1px solid var(--line);border-radius:var(--rs);padding:.45rem .7rem;min-height:44px;cursor:pointer}
+#view{flex:1;padding:0 1rem 6.5rem}
+.pad{padding:0 .2rem}
+.muted{color:var(--ink2)} .small{font-size:.86rem}
+.kicker{color:var(--sunset);font-style:italic;font-size:1rem;margin:.6rem 0 0}
+.tag{color:var(--ink2);font-size:1.02rem;max-width:34ch}
+.hero{padding:.4rem 0 .6rem;border-bottom:1px solid var(--line)}
+
+/* bottom nav */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);
+  display:flex;justify-content:space-around;max-width:640px;margin:0 auto;padding:.25rem 0 max(.25rem, env(safe-area-inset-bottom));z-index:40}
+.bnav button{flex:1;background:none;border:0;padding:.5rem .2rem;min-height:52px;cursor:pointer;color:var(--ink2);font-size:.78rem;display:flex;flex-direction:column;gap:2px;align-items:center}
+.bnav button .nicon{font-size:1.15rem;line-height:1}
+.bnav button.on{color:var(--ocean);font-weight:700}
+.bnav button.on .nicon{transform:translateY(-1px)}
+
+/* cards */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:1rem;margin:.9rem 0}
+.cardlabel{margin:0 0 .3rem;color:var(--fynbos);font-size:.82rem;letter-spacing:.04em;font-weight:700}
+.card.act{border-left:4px solid var(--ocean)}
+.card.disc{border-left:4px solid var(--sunset)}
+.card.danger{border-left:4px solid var(--danger)}
+.btn{background:var(--paper2);border:1px solid var(--line);border-radius:var(--rs);padding:.6rem .95rem;min-height:44px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:.35rem}
+.btn.primary{background:var(--ocean);border-color:var(--ocean);color:#fff}
+.btn.small{padding:.4rem .7rem;min-height:40px;font-size:.9rem}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btnrow{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.6rem;align-items:center}
+.tinybtn{background:none;border:1px solid var(--line);border-radius:var(--rs);padding:.3rem .6rem;min-height:36px;cursor:pointer;font-size:.84rem;text-decoration:none;color:var(--ink)}
+.tinytag{font-size:.8rem;color:var(--sunset);border:1px dashed var(--sunset);border-radius:var(--rs);padding:.2rem .5rem}
+.linklike{background:none;border:0;color:var(--ocean);text-decoration:underline;cursor:pointer;padding:.35rem .2rem;display:block;text-align:left;min-height:40px}
+
+/* stats + passport */
+.statrow{display:flex;gap:.6rem;margin:.9rem 0}
+.stat{flex:1;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:.6rem;text-align:center}
+.stat b{display:block;font-size:1.5rem;font-family:Georgia,serif;color:var(--ocean)}
+.stat span{font-size:.78rem;color:var(--ink2)}
+.passport{display:flex;flex-wrap:wrap;gap:.55rem;background:var(--paper2);border:1px dashed var(--line);border-radius:var(--r);padding:.7rem;margin:.6rem 0}
+.passport.empty{color:var(--ink2);font-size:.9rem}
+.passport.empty p{margin:.1rem}
+.stamp{border:2px solid var(--fynbos);color:var(--fynbos);border-radius:50%;width:74px;height:74px;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:.6rem;line-height:1.15;padding:4px;font-weight:700;letter-spacing:.02em}
+.stamp i{font-style:normal;font-size:.95rem}
+.stamp.r0{transform:rotate(-7deg)} .stamp.r1{transform:rotate(4deg);border-color:var(--ocean);color:var(--ocean)} .stamp.r2{transform:rotate(-2deg);border-color:var(--sunset);color:var(--sunset)}
+.stampq{border:1px solid var(--ink2);color:var(--ink2);border-radius:var(--rs);padding:.35rem .5rem;font-size:.7rem;align-self:center}
+
+/* explore */
+.pagehead{display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap;padding-top:.6rem}
+.viewtoggle{display:flex;border:1px solid var(--line);border-radius:var(--rs);overflow:hidden}
+.viewtoggle button{background:var(--card);border:0;padding:.45rem .9rem;min-height:42px;cursor:pointer}
+.viewtoggle button.on{background:var(--ocean);color:#fff}
+.searchrow input{width:100%;padding:.65rem .8rem;border:1px solid var(--line);border-radius:var(--rs);background:var(--card);font:inherit;margin:.5rem 0}
+.chiprow{display:flex;flex-wrap:wrap;gap:.4rem;margin:.3rem 0 .7rem;align-items:center}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:.35rem .75rem;min-height:38px;cursor:pointer;font-size:.86rem}
+.chip.on{background:var(--ocean);border-color:var(--ocean);color:#fff}
+.chiprow select,.chiprow input[type=date]{border:1px solid var(--line);border-radius:var(--rs);padding:.35rem;background:var(--card);font:inherit;min-height:38px}
+.destlist{display:flex;flex-direction:column;gap:.7rem}
+.destcard{position:relative;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:0;overflow:hidden;border-left:4px solid var(--ocean)}
+.destcard.cat-nature{border-left-color:var(--fynbos)}
+.destcard.cat-food{border-left-color:var(--sunset)}
+.destcard.cat-shopping{border-left-color:#8A7A9E}
+.destcard.cat-history,.destcard.cat-museums{border-left-color:var(--ocean)}
+.destcard.cat-walks{border-left-color:#4E8A96}
+.destcard.quiet{border-left-color:var(--ink2);background:#FAF8F3}
+.destmain{display:block;width:100%;text-align:left;background:none;border:0;padding:.8rem 2.6rem .35rem .9rem;cursor:pointer}
+.destmain h2{margin:0}
+.dcat{margin:.1rem 0 .25rem;color:var(--ink2);font-size:.85rem;font-style:italic}
+.dmeta{margin:0;display:flex;flex-wrap:wrap;gap:.7rem;font-size:.82rem;color:var(--ink2)}
+.vst{font-weight:700}
+.vst.v-visited{color:var(--fynbos)} .vst.v-in{color:var(--sunset)} .vst.v-not{color:var(--ink2)}
+.itin{text-transform:capitalize}
+.destops{display:flex;gap:.5rem;padding:.4rem .9rem .7rem;flex-wrap:wrap}
+.favbtn{position:absolute;top:.4rem;right:.4rem;background:none;border:0;font-size:1.3rem;color:#C9BFA8;cursor:pointer;min-width:44px;min-height:44px}
+.favbtn.on{color:var(--sunset)}
+
+/* destination page */
+.backlink{background:none;border:0;color:var(--ocean);padding:.7rem 0;cursor:pointer;font-size:.95rem}
+.dph .intro{font-size:1.02rem;max-width:60ch}
+.gtk{background:var(--ocean-soft);border-radius:var(--rs);padding:.55rem .7rem;font-size:.88rem}
+.srcline{font-size:.85rem;color:var(--ink2)}
+.dstatus{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:.7rem 0;margin:.7rem 0}
+.mrow{margin-left:.7rem;letter-spacing:.2em;color:var(--ink2)}
+.mdot.on{color:var(--fynbos)}
+.visitnote{display:block;font-size:.86rem;color:var(--ink2)}
+.visitnote textarea{width:100%;margin-top:.25rem}
+textarea,input[type=text],input[type=search],input[type=date],input[type=number],select{
+  border:1px solid var(--line);border-radius:var(--rs);padding:.55rem .65rem;background:var(--card);font:inherit;width:100%;color:var(--ink)}
+label{display:block;margin:.55rem 0;font-size:.92rem}
+label.chk{display:flex;align-items:center;gap:.5rem;min-height:40px;margin:.15rem 0}
+label.chk input{width:auto;min-width:22px;min-height:22px}
+fieldset{border:1px solid var(--line);border-radius:var(--r);margin:.7rem 0;padding:.5rem .8rem}
+legend{font-size:.88rem;color:var(--fynbos);font-weight:700;padding:0 .3rem}
+.tworow{display:flex;gap:.6rem}.tworow label{flex:1}
+
+/* prompt card */
+.promptzone{margin-top:1rem}
+.pzhead{display:flex;justify-content:space-between;align-items:baseline;gap:.5rem;flex-wrap:wrap}
+.switch{font-size:.86rem;display:flex;gap:.4rem;align-items:center}
+.switch input{width:auto;min-width:20px;min-height:20px}
+.pcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:1rem;margin:.6rem 0;border-top:4px solid var(--ocean)}
+.pcard.t-observation{border-top-color:var(--fynbos)}
+.pcard.t-research{border-top-color:var(--ocean)}
+.pcard.t-media{border-top-color:var(--sunset)}
+.pcard.t-reflection{border-top-color:#8A7A9E}
+.pcard.t-conversation{border-top-color:#4E8A96}
+.pcard.pquiet{border-top-color:var(--ink2)}
+.plabel{margin:0;font-size:1.05rem;color:var(--ocean)}
+.starter{font-size:.72rem;color:var(--fynbos);border:1px solid var(--fynbos);border-radius:999px;padding:.05rem .5rem;font-style:normal;vertical-align:middle;font-family:system-ui,sans-serif}
+.ptext{font-size:1.05rem;margin:.4rem 0}
+.ptype{font-size:.8rem;color:var(--ink2);margin:.2rem 0 .5rem}
+.hintbox{margin:.4rem 0;font-size:.9rem}
+.hintbox summary{cursor:pointer;color:var(--ocean);min-height:38px;display:flex;align-items:center}
+.anslabel{font-size:.86rem;color:var(--ink2)}
+.pnav{display:flex;gap:.5rem;align-items:center;justify-content:space-between}
+.savestate{font-size:.85rem;color:var(--ink2)} .savestate.ok{color:var(--fynbos);font-weight:700}
+.mediarow{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin:.4rem 0}
+.filebtn{cursor:pointer}
+.describenote{font-size:.85rem;color:var(--ink2)}
+.phpreview{display:flex;flex-direction:column;gap:.6rem;margin:.4rem 0}
+.phitem{display:grid;grid-template-columns:96px 1fr auto;gap:.5rem;align-items:center}
+.phitem img{width:96px;height:96px;object-fit:cover;border-radius:var(--rs);border:1px solid var(--line)}
+.phitem audio{width:100%;grid-column:1/3}
+.voicezone{margin:.3rem 0}
+
+/* quiet mode page */
+.quietpage .gtk{background:#EEECE6}
+.quietpage .pcard{background:#FAF8F3}
+.quietpage .plabel{color:var(--ink)}
+
+/* journal */
+.entry{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:.8rem .9rem;margin:.7rem 0;position:relative}
+.entry.quiet{background:#FAF8F3}
+.entry header{display:flex;flex-direction:column;gap:.1rem;padding-right:2.6rem}
+.entry header b{font-family:Georgia,serif}
+.entry p{margin:.4rem 0}
+.dadnote{background:var(--ocean-soft);border-radius:var(--rs);padding:.45rem .6rem;font-size:.9rem}
+.checkin{margin:.4rem 0}
+.checkin dt{font-size:.8rem;color:var(--fynbos);font-weight:700}
+.checkin dd{margin:0 0 .4rem}
+.ethumbs{display:flex;flex-wrap:wrap;gap:.5rem}
+.ethumbs figure{margin:0;max-width:140px}
+.ethumbs img{width:140px;height:105px;object-fit:cover;border-radius:var(--rs);border:1px solid var(--line)}
+.ethumbs audio{width:200px}
+.ethumbs figcaption{font-size:.75rem;color:var(--ink2)}
+.composer h2{color:var(--ocean)}
+
+/* recap */
+.rcphotos{display:flex;flex-wrap:wrap;gap:.5rem}
+.rcph{position:relative;border:3px solid transparent;border-radius:var(--rs);cursor:pointer;margin:0}
+.rcph.on{border-color:var(--fynbos)}
+.rcph img{width:92px;height:92px;object-fit:cover;border-radius:4px;display:block}
+.rcph input{position:absolute;top:4px;left:4px;width:22px;height:22px}
+
+/* map */
+#mapwrap{position:relative;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+#map{height:min(62vh,480px);width:100%;background:var(--paper2)}
+.mapbtns{position:absolute;bottom:.6rem;left:.6rem;display:flex;gap:.4rem;z-index:800}
+.mapmsg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:var(--paper2);padding:1rem;text-align:center;z-index:900;flex-direction:column;gap:.5rem}
+.legend{display:flex;flex-wrap:wrap;gap:.8rem;font-size:.82rem;color:var(--ink2);margin:.5rem 0 0}
+.pin{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50% 50% 50% 4px;background:var(--card);border:2px solid var(--ocean);color:var(--ocean);font-size:1rem;box-shadow:0 1px 3px rgba(34,49,58,.3)}
+.pin.cat-nature{border-color:var(--fynbos);color:var(--fynbos)}
+.pin.cat-food{border-color:var(--sunset);color:var(--sunset)}
+.pin.cat-shopping{border-color:#8A7A9E;color:#8A7A9E}
+.pin.cat-walks{border-color:#4E8A96;color:#4E8A96}
+.pin.v-visited{background:var(--fynbos);border-color:var(--fynbos);color:#fff}
+.pin.v-in{border-style:dashed}
+.pin.pinquiet{border-color:var(--ink2);color:var(--ink2);border-radius:6px}
+.pin.pinquiet.v-visited{background:var(--ink2);color:#fff}
+.pin.access{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--ink2);color:var(--ink2);font-size:.8rem;background:var(--paper)}
+.pin.daynum{background:var(--ocean);color:#fff;border-color:var(--ocean);border-radius:50%;font-weight:700}
+.mcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:.9rem;margin:.7rem 0;border-left:4px solid var(--ocean)}
+.mcard.quiet{border-left-color:var(--ink2)}
+.tocitem{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;padding:.35rem 0;border-bottom:1px dashed var(--line)}
+
+/* sheet + dialogs + toast */
+#sheet{position:fixed;left:0;right:0;bottom:-100%;max-width:640px;margin:0 auto;background:var(--card);border-radius:16px 16px 0 0;border:1px solid var(--line);z-index:60;transition:bottom .25s;box-shadow:0 -4px 20px rgba(34,49,58,.2)}
+#sheet.show{bottom:0}
+.sheetin{padding:1rem 1rem 1.4rem}
+#toast{position:fixed;bottom:5.4rem;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:.6rem 1rem;border-radius:var(--rs);opacity:0;pointer-events:none;transition:all .25s;z-index:100;max-width:90%;text-align:center;font-size:.9rem}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+dialog{border:1px solid var(--line);border-radius:var(--r);padding:1.1rem;max-width:26rem;background:var(--card);color:var(--ink)}
+dialog::backdrop{background:rgba(34,49,58,.45)}
+#onboard{position:fixed;inset:0;background:var(--paper);z-index:80;display:none;overflow:auto}
+#onboard.show{display:block}
+.obcard{max-width:520px;margin:0 auto;padding:1.4rem 1.2rem 3rem}
+#storagewarn{background:#F7E6C4;border-bottom:1px solid #D9B96A;padding:.5rem 1rem;font-size:.85rem}
+
+/* print */
+#printRecap{display:none}
+@media print{
+  body.printing #app,#toast,#sheet,#onboard{display:none!important}
+  body.printing #printRecap{display:block;font-family:Georgia,serif;color:#000;max-width:100%}
+  #printRecap h1{font-size:22pt;margin-bottom:2pt}
+  #printRecap .prsub{color:#444;margin-top:0}
+  #printRecap h2{font-size:13pt;border-bottom:1px solid #999;padding-bottom:2pt;margin-top:14pt}
+  #printRecap .prphotos{display:flex;flex-wrap:wrap;gap:8pt}
+  #printRecap figure{margin:0;max-width:200pt;page-break-inside:avoid}
+  #printRecap img{max-width:200pt;max-height:150pt;object-fit:cover}
+  #printRecap figcaption{font-size:8.5pt;color:#444}
+  #printRecap p{orphans:3;widows:3}
+  #printRecap .prfoot{margin-top:18pt;font-size:9pt;color:#666;font-style:italic}
+}
+@media (min-width:700px){
+  .destlist{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+  #map{height:520px}
+}
+
+</style>
+</head>
+<body>
+<div id="storagewarn" hidden>Heads up: durable storage isn't available here, so nothing will persist after this page closes. Save this file and open it in your phone's browser for the real thing.</div>
+<div id="app">
+  <header class="tophdr">
+    <span class="brand">Cape Town Field Notes</span>
+    <button id="menuBtn" aria-label="Settings">Settings</button>
+  </header>
+  <main id="view" aria-live="polite"></main>
+  <nav class="bnav" aria-label="Main">
+    <button data-route="home"><span class="nicon" aria-hidden="true">⌂</span>Home</button>
+    <button data-route="explore"><span class="nicon" aria-hidden="true">◈</span>Explore</button>
+    <button data-route="map"><span class="nicon" aria-hidden="true">✦</span>Map</button>
+    <button data-route="journal"><span class="nicon" aria-hidden="true">✎</span>Journal</button>
+    <button data-route="recap"><span class="nicon" aria-hidden="true">❖</span>Recap</button>
+  </nav>
+</div>
+<div id="sheet" role="dialog" aria-label="Itinerary options"></div>
+<div id="onboard" role="dialog" aria-label="Welcome"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<dialog id="confirmDlg">
+  <h2 id="cdTitle"></h2>
+  <p id="cdBody"></p>
+  <div class="btnrow">
+    <button class="btn primary" id="cdOk">Confirm</button>
+    <button class="btn" id="cdCancel">Cancel</button>
+  </div>
+</dialog>
+<section id="printRecap" aria-hidden="true"></section>
+<script>
+/* Cape Town Field Notes — content data.
+   Structured so content can be edited without touching UI code.
+   Coordinates: plotted only where verified against the official site / address
+   sources noted below (checked 2026-09-10). Positions are approximate to the
+   visitor entrance area, not survey-grade. {DAD} is replaced at render time
+   with the editable companion label. */
+
+const VERIFIED = "2026-09-10";
+
+const CATS = {
+  nature:   { label: "Nature",   icon: "◗" },
+  history:  { label: "History",  icon: "▣" },
+  museums:  { label: "Museums",  icon: "◈" },
+  food:     { label: "Food",     icon: "●" },
+  shopping: { label: "Shopping", icon: "◻" },
+  walks:    { label: "Walks",    icon: "〜" }
+};
+
+const PROMPT_META = {
+  spot:   { label: "Spot it",        type: "observation",  starter: true },
+  find:   { label: "Find out",       type: "research",     starter: true },
+  memory: { label: "Keep a memory",  type: "media",        starter: false, quick: true },
+  yours:  { label: "Make it yours",  type: "reflection",   starter: false },
+  dad:    { label: "With {DAD}",     type: "conversation", starter: false }
+};
+
+const DEFAULT_HINT = "Look for a sign, display board, map, guide, or the venue's website.";
+
+const DESTINATIONS = [
+{
+  id: "table-mountain", name: "Table Mountain",
+  catLabel: "Nature and engineering", cats: ["nature"],
+  intro: "Cape Town's flat-topped landmark, part of Table Mountain National Park, with a rotating-car cableway to the upper station and wide views over the city and coast. Weather changes fast up here.",
+  sources: [{ label: "tablemountain.net", url: "https://www.tablemountain.net" }],
+  planUrl: "https://www.tablemountain.net", planLabel: "Check current cableway conditions",
+  goodToKnow: "If the cableway is closed or the summit is out of reach, a lower-station or ground-view visit still counts as a real entry. Stay on marked routes and away from edges.",
+  coord: { lat: -33.9576, lng: 18.4034, src: "tablemountain.net / OpenStreetMap", note: "Upper cableway station area, approximate" },
+  access: [{ name: "Lower Cableway Station (Tafelberg Road)", lat: -33.9490, lng: 18.4034, note: "Departure point — not a separate destination" }],
+  prompts: {
+    spot:   { text: "From a designated viewing area, find three different landscape features. Describe their shapes or identify them using a map or sign.", hint: "Viewpoint markers and orientation tables name what you're looking at." },
+    find:   { text: "Find one fact about how the cableway operates or how the mountain formed. What helped you understand it?", hint: "Signs at the stations and the official site both explain the cableway and the geology." },
+    memory: { text: "Take a landscape photo from a safe viewing point, or describe the view in three details." },
+    yours:  { text: "What looks different about Cape Town from up here?" },
+    dad:    { text: "Ask {DAD} which part of the view has a story for him. Save the story only if he is happy for you to." }
+  }
+},
+{
+  id: "va-waterfront", name: "V&A Waterfront",
+  catLabel: "City life and design", cats: ["shopping", "walks"],
+  intro: "A harbour district where a working port and a visitor destination share the same water: shops, restaurants, museums, and boats in one walkable stretch.",
+  sources: [{ label: "waterfront.co.za", url: "https://www.waterfront.co.za" }],
+  planUrl: "https://www.waterfront.co.za", planLabel: "Plan your visit",
+  coord: { lat: -33.9036, lng: 18.4196, src: "waterfront.co.za / OpenStreetMap", note: "Central precinct, approximate" },
+  prompts: {
+    spot:   { text: "Find one sign that this place is a working waterfront as well as a visitor destination.", hint: "Watch the water and the equipment around it, not just the shopfronts." },
+    find:   { text: "What do the V and A stand for? Find a source that explains the name.", hint: "Plaques, information boards, and the official site all cover the name." },
+    memory: { text: "Photograph or describe a contrast: old and new, boats and buildings, or work and leisure." },
+    yours:  { text: "Which detail would you miss if you walked through while looking at your phone?" },
+    dad:    { text: "Each choose a favorite boat, building, or public space and explain your choice." }
+  }
+},
+{
+  id: "two-oceans-aquarium", name: "Two Oceans Aquarium",
+  catLabel: "Marine life", cats: ["museums", "nature"],
+  intro: "An aquarium at the Waterfront focused on the marine life of the oceans around southern Africa, from kelp forests to open-water predators.",
+  sources: [{ label: "aquarium.co.za", url: "https://www.aquarium.co.za" }],
+  planUrl: "https://www.aquarium.co.za", planLabel: "Plan your visit",
+  goodToKnow: "No particular animal is guaranteed to be on view. And no, the two oceans don't meet at Cape Point — keep an eye out for how the aquarium itself explains the name.",
+  coord: { lat: -33.9080, lng: 18.4172, src: "aquarium.co.za / OpenStreetMap", note: "Dock Road entrance, approximate" },
+  prompts: {
+    spot:   { text: "Choose an animal and notice one feature that may help it survive. Check its label to learn more." },
+    find:   { text: "Which two oceans does the aquarium's name refer to? Find one difference between the marine environments described here.", hint: "Exhibit labels contrast the cold and warm water ecosystems." },
+    memory: { text: "Photograph an animal where permitted, or sketch or describe it. Add its name from the label." },
+    yours:  { text: "What surprised you about an animal you thought you already knew?" },
+    dad:    { text: "Choose one ocean-protection action you would each be willing to try." }
+  }
+},
+{
+  id: "kirstenbosch", name: "Kirstenbosch National Botanical Garden",
+  catLabel: "Plants and landscape", cats: ["nature", "walks"],
+  intro: "A botanical garden on the eastern slopes of Table Mountain, dedicated to South Africa's indigenous plants.",
+  sources: [{ label: "sanbi.org — Kirstenbosch", url: "https://www.sanbi.org/gardens/kirstenbosch/" }],
+  planUrl: "https://www.sanbi.org/gardens/kirstenbosch/", planLabel: "Plan your visit",
+  coord: { lat: -33.9881, lng: 18.4326, src: "sanbi.org / OpenStreetMap", note: "Main entrance area, approximate" },
+  prompts: {
+    spot:   { text: "Find a labeled plant with a striking shape, texture, or adaptation. Record its name without picking or damaging it." },
+    find:   { text: "Find an explanation of fynbos or indigenous plants. What makes the concept important here?", hint: "Interpretive signs near the entrance and along the main paths explain fynbos." },
+    memory: { text: "Photograph or describe a pattern in a leaf, flower, trunk, or garden view." },
+    yours:  { text: "Choose somewhere to pause for a minute. What sounds and details become noticeable?" },
+    dad:    { text: "Each choose a plant or garden feature you would put in an imaginary garden." }
+  }
+},
+{
+  id: "robben-island", name: "Robben Island Museum",
+  catLabel: "History", cats: ["history", "museums"], quiet: true,
+  intro: "A UNESCO World Heritage Site in Table Bay, for centuries a place of banishment and imprisonment, including for Nelson Mandela and many others. Tours leave by ferry from the V&A Waterfront.",
+  sources: [{ label: "robben-island.org.za", url: "https://www.robben-island.org.za" }],
+  planUrl: "https://www.robben-island.org.za", planLabel: "Ferry times and booking",
+  goodToKnow: "It's fine to write your reflections later, away from the tour. If the ferry is canceled, mark the stop postponed — you can still add a separate research entry.",
+  coord: { lat: -33.8067, lng: 18.3712, src: "robben-island.org.za / OpenStreetMap", note: "Island, approximate" },
+  access: [{ name: "Nelson Mandela Gateway (V&A Waterfront)", lat: -33.9059, lng: 18.4232, note: "Ferry departure point — not a separate destination" }],
+  prompts: {
+    spot:   { text: "Notice one place or detail the guide connects to daily life on the island. Describe it respectfully." },
+    find:   { text: "Learn about one person associated with the island beyond the person you knew most about before arriving. What does their story add?", hint: "Guides and the museum's own materials introduce many lives connected to the island." },
+    memory: { text: "Write down one idea from the tour in your own words. Photograph only where permitted." },
+    yours:  { text: "What did the visit help you understand about imprisonment, resistance, or human dignity?" },
+    dad:    { text: "What question would each of you like to keep thinking about after leaving?" }
+  }
+},
+{
+  id: "boulders", name: "Boulders Penguin Colony",
+  catLabel: "Wildlife", cats: ["nature"],
+  intro: "A sheltered stretch of coast near Simon's Town where a colony of African penguins lives among granite boulders, viewed from boardwalks.",
+  sources: [{ label: "sanparks.org — Boulders", url: "https://www.sanparks.org/parks/table-mountain/what-to-do/attractions/boulders-penguin-colony" }],
+  planUrl: "https://www.sanparks.org/parks/table-mountain/what-to-do/attractions/boulders-penguin-colony", planLabel: "Plan your visit",
+  goodToKnow: "Watch from the boardwalks and permitted areas only — no feeding, touching, or approaching birds. Beach access and particular sightings are never guaranteed.",
+  coord: { lat: -34.1972, lng: 18.4515, src: "sanparks.org / OpenStreetMap", note: "Boardwalk entrance area, approximate" },
+  prompts: {
+    spot:   { text: "From the permitted viewing area, observe two penguin behaviors without approaching or disturbing the birds." },
+    find:   { text: "Identify the penguin species and one threat described on a sign or official resource.", hint: "The boardwalk signs cover the species and what threatens it." },
+    memory: { text: "Take a photo from the designated area, or describe a behavior you noticed." },
+    yours:  { text: "How is watching animals in their habitat different from seeing them on a screen?" },
+    dad:    { text: "Decide on one responsible wildlife-viewing habit you want to remember." }
+  }
+},
+{
+  id: "canal-walk", name: "Canal Walk",
+  catLabel: "Shopping and design", cats: ["shopping"],
+  intro: "One of South Africa's largest shopping centres, built at Century City with its own canals and a distinctive architectural style.",
+  sources: [{ label: "canalwalk.co.za", url: "https://canalwalk.co.za" }],
+  planUrl: "https://canalwalk.co.za", planLabel: "Directory and hours",
+  coord: { lat: -33.8935, lng: 18.5107, src: "canalwalk.co.za / OpenStreetMap", note: "Century Boulevard entrance, approximate" },
+  prompts: {
+    spot:   { text: "Find an architectural or interior-design feature that catches your attention." },
+    find:   { text: "Use the directory to identify a store or brand you do not recognize. What does it sell?", hint: "Directory boards are at the main entrances; the website has a full list." },
+    memory: { text: "Photograph or describe a design detail, respecting the venue's photography rules." },
+    yours:  { text: "With an imaginary R500 budget, what would you choose and why? No purchase required." },
+    dad:    { text: "Compare one similarity and one difference with a shopping center at home." }
+  }
+},
+{
+  id: "bayside-mall", name: "Bayside Mall",
+  catLabel: "Shopping and everyday life", cats: ["shopping"],
+  intro: "An everyday shopping centre on the Table View side of the city — the kind of place locals actually use. Confirm the exact centre and location before your visit.",
+  sources: [{ label: "User-provided destination — official page to confirm", url: "" }],
+  locationToConfirm: true, confirmLabel: "Bayside Mall — location to confirm",
+  prompts: {
+    spot:   { text: "Find a product, store, or food option that feels unfamiliar." },
+    find:   { text: "Learn what it is from the label, menu, or directory. What assumption did you have at first?" },
+    memory: { text: "Save a written description or permitted photo of your discovery." },
+    yours:  { text: "What can an everyday shopping place tell you that a major tourist attraction might not?" },
+    dad:    { text: "Ask whether anything here reminds him of everyday life in South Africa." }
+  }
+},
+{
+  id: "spur", name: "Spur",
+  catLabel: "Food and shared memories", cats: ["food"],
+  intro: "A South African family steakhouse chain many locals grew up with. Pick your branch, then dig in.",
+  sources: [{ label: "User-provided restaurant — branch to be selected", url: "" }],
+  locationToConfirm: true, confirmLabel: "Spur — branch to confirm",
+  prompts: {
+    spot:   { text: "Find a menu item or expression that is new to you." },
+    find:   { text: "Use the menu or ask a willing staff member what it contains or means." },
+    memory: { text: "Photograph or describe your meal and add a short review." },
+    yours:  { text: "What makes a restaurant memorable for you: food, setting, people, or something else?" },
+    dad:    { text: "Ask {DAD} whether Spur has any memories attached to it for him." }
+  }
+},
+{
+  id: "castle", name: "Castle of Good Hope",
+  catLabel: "History and engineering", cats: ["history"],
+  intro: "A 17th-century star fort built by the Dutch East India Company, generally described as the oldest surviving colonial-era building in South Africa. Its story is impressive and difficult at the same time.",
+  sources: [{ label: "castleofgoodhope.co.za", url: "https://www.castleofgoodhope.co.za" }],
+  planUrl: "https://www.castleofgoodhope.co.za", planLabel: "Plan your visit",
+  coord: { lat: -33.9259, lng: 18.4275, src: "castleofgoodhope.co.za / OpenStreetMap", note: "Main entrance area, approximate" },
+  prompts: {
+    spot:   { text: "Find a defensive or architectural feature. What job do you think it performed?" },
+    find:   { text: "Use a display or guide to learn who built the Castle, why, and one way its purpose changed.", hint: "The displays inside cover the building's origins and its changing uses." },
+    memory: { text: "Sketch or photograph a permitted architectural detail and caption it." },
+    yours:  { text: "Whose perspective appears in the story being told? Whose perspective would you like to hear more about?" },
+    dad:    { text: "Discuss how a building can be impressive and also connected to difficult history." }
+  }
+},
+{
+  id: "sanccob", name: "SANCCOB Penguin Rescue",
+  catLabel: "Wildlife conservation", cats: ["nature"],
+  intro: "A seabird rescue and rehabilitation centre in Table View, best known for its work with African penguins. Tours run at set times — book ahead.",
+  sources: [
+    { label: "sanccob.co.za", url: "https://sanccob.co.za" },
+    { label: "Tour information", url: "https://sanccob.co.za/sanccob-tours/" }
+  ],
+  planUrl: "https://sanccob.co.za/sanccob-tours/", planLabel: "Tour times and booking",
+  goodToKnow: "Tours follow a set route; handling birds, feeding, release events, and treatment areas aren't part of a visit.",
+  coord: { lat: -33.8338, lng: 18.4913, src: "sanccob.co.za contact page: 22 Pentz Drive, Table View (Cape Town centre)", note: "Approximate" },
+  prompts: {
+    spot:   { text: "On the permitted tour route, notice equipment or a routine used to care for seabirds." },
+    find:   { text: "Learn one reason birds need rehabilitation and one factor staff consider before release.", hint: "Guides explain both on the standard tour." },
+    memory: { text: "Record a conservation fact in your own words, or take a permitted photo." },
+    yours:  { text: "What work happens behind the scenes that you had not considered?" },
+    dad:    { text: "Compare what you learned here with your Boulders visit, whenever both have happened." }
+  }
+},
+{
+  id: "stardust", name: "Stardust",
+  catLabel: "Food and performance", cats: ["food"],
+  intro: "A theatrical dining restaurant in Woodstock where the waiters are also the singers. Book ahead — shows vary by night and are not guaranteed by this app.",
+  sources: [{ label: "stardustcapetown.com", url: "https://stardustcapetown.com" }],
+  planUrl: "https://stardustcapetown.com", planLabel: "Booking and show info",
+  coord: { lat: -33.9273, lng: 18.4378, src: "Venue address: 118 Sir Lowry Rd, Woodstock (via stardustcapetown.com listings)", note: "Approximate" },
+  prompts: {
+    spot:   { text: "Notice how the space, service, or performance creates the atmosphere tonight." },
+    find:   { text: "Find out what makes this restaurant's entertainment format distinctive, using the venue's information or what you experience." },
+    memory: { text: "Save a written review of a moment you enjoyed. Record or photograph performers only when allowed." },
+    yours:  { text: "What did you notice about the skill involved in performing for a room of people?" },
+    dad:    { text: "Each choose a song you would put on a soundtrack for the trip." }
+  }
+},
+{
+  id: "greenmarket", name: "Greenmarket Square",
+  catLabel: "Public space and craft", cats: ["shopping", "walks"],
+  intro: "One of Cape Town's oldest public squares, now known for its craft and souvenir market, ringed by notable buildings.",
+  sources: [{ label: "Wikipedia (starting reference)", url: "https://en.wikipedia.org/wiki/Greenmarket_Square" }],
+  goodToKnow: "The Wikipedia link is a starting point — check historical claims against a credible heritage source. Ask before photographing a person or their stall.",
+  coord: { lat: -33.9231, lng: 18.4187, src: "OpenStreetMap", note: "Square centre, approximate" },
+  prompts: {
+    spot:   { text: "Find an interesting craft detail or surrounding building feature. Ask before photographing a person or their stall." },
+    find:   { text: "Learn about a material or technique from an available description or a vendor who wants to chat. Alternatively, research a surrounding building.", hint: "Some stalls describe their craft; the buildings around the square have their own histories." },
+    memory: { text: "Describe the colors, textures, and sounds of the square." },
+    yours:  { text: "What helps you appreciate an object beyond its price?" },
+    dad:    { text: "Each choose an object or detail that would remind you of the visit. Buying is optional." }
+  }
+},
+{
+  id: "sea-point", name: "Sea Point Promenade",
+  catLabel: "Walking and public space", cats: ["walks"],
+  intro: "A long, flat seafront walkway where the city comes to walk, run, skate, and watch the Atlantic.",
+  sources: [{ label: "AllTrails (starting reference)", url: "https://www.alltrails.com/trail/south-africa/western-cape/seapoint-promenade-walk" }],
+  goodToKnow: "The route link is a reference, not a guarantee of current conditions. No pace, distance, or wave-dodging involved here.",
+  coord: { lat: -33.9103, lng: 18.3928, src: "OpenStreetMap", note: "Mid-promenade, approximate — it's a long walkway" },
+  prompts: {
+    spot:   { text: "Find three different uses of the promenade without photographing strangers closely." },
+    find:   { text: "Find a sign, public artwork, or designed feature. What does it tell you about the place or how it is used?" },
+    memory: { text: "Photograph or describe the relationship between the city and ocean." },
+    yours:  { text: "Design your ideal ten-minute break here. What would it include?" },
+    dad:    { text: "Walk together for a few minutes with the phones away, then save anything you want to remember." }
+  }
+},
+{
+  id: "iziko-museum", name: "Iziko South African Museum",
+  catLabel: "Natural history", cats: ["museums"],
+  intro: "A natural history museum in the Company's Garden, with collections spanning fossils, marine life, and much more. Displays change over time.",
+  sources: [{ label: "iziko.org.za — South African Museum", url: "https://www.iziko.org.za/museums/south-african-museum/" }],
+  planUrl: "https://www.iziko.org.za/museums/south-african-museum/", planLabel: "Plan your visit",
+  coord: { lat: -33.9283, lng: 18.4155, src: "iziko.org.za / OpenStreetMap", note: "25 Queen Victoria Street, approximate" },
+  prompts: {
+    spot:   { text: "Choose a specimen or display that makes you stop and look twice." },
+    find:   { text: "What does its label tell you, and what evidence helped researchers understand it?" },
+    memory: { text: "Record the specimen or exhibit name and a permitted photo, sketch, or description." },
+    yours:  { text: "What changed your sense of time, scale, or life on Earth?" },
+    dad:    { text: "Each choose one exhibit you would explain to someone back home." }
+  }
+},
+{
+  id: "illusions", name: "Museum of Illusions Cape Town",
+  catLabel: "Perception and interactive discovery", cats: ["museums"],
+  intro: "An interactive museum of optical illusions on Kloof Street, where touching, playing, and taking photos are part of the point.",
+  sources: [{ label: "moicapetown.co.za", url: "https://moicapetown.co.za" }],
+  planUrl: "https://moicapetown.co.za", planLabel: "Tickets and hours",
+  coord: { lat: -33.9287, lng: 18.4104, src: "Venue address: 10 Kloof Street, Gardens (via press coverage of the official opening)", note: "Approximate" },
+  prompts: {
+    spot:   { text: "Find an available illusion that makes you question what you are seeing." },
+    find:   { text: "Read its explanation. What cue or expectation does it use to affect perception?" },
+    memory: { text: "Use the exhibit as instructed to create a permitted illusion photo, or describe the effect." },
+    yours:  { text: "What is the difference between feeling certain and being correct in this example?" },
+    dad:    { text: "Compare your first reactions. Did you notice the same thing?" }
+  }
+},
+{
+  id: "national-gallery", name: "Iziko South African National Gallery",
+  catLabel: "Art", cats: ["museums"],
+  intro: "South Africa's national art museum in the Company's Garden, showing historical and contemporary work. Exhibitions change — whatever is up when you visit is your material.",
+  sources: [{ label: "iziko.org.za — National Gallery", url: "https://www.iziko.org.za/museums/south-african-national-gallery/" }],
+  planUrl: "https://www.iziko.org.za/museums/south-african-national-gallery/", planLabel: "Current exhibitions",
+  coord: { lat: -33.9290, lng: 18.4166, src: "iziko.org.za / OpenStreetMap", note: "Government Avenue, Company's Garden, approximate" },
+  prompts: {
+    spot:   { text: "Choose one work you are drawn to and one you find puzzling." },
+    find:   { text: "Read a label. Record the artist, title, and medium, when supplied. What changes after reading it?" },
+    memory: { text: "Write a short response, sketch where permitted, or take a photo if allowed." },
+    yours:  { text: "What do you see in the work that supports your interpretation?" },
+    dad:    { text: "Each choose a work and compare what you noticed, without needing to agree." }
+  }
+},
+{
+  id: "bo-kaap", name: "Bo-Kaap Museum",
+  catLabel: "Community and history", cats: ["museums", "history"],
+  intro: "A small museum in one of the oldest houses in the Bo-Kaap, telling stories of the neighbourhood and Cape Muslim community life. The streets around it are a lived community, not a photo set.",
+  sources: [{ label: "iziko.org.za — Bo-Kaap Museum", url: "https://www.iziko.org.za/museums/bo-kaap-museum/" }],
+  planUrl: "https://www.iziko.org.za/museums/bo-kaap-museum/", planLabel: "Plan your visit",
+  coord: { lat: -33.9212, lng: 18.4148, src: "iziko.org.za / OpenStreetMap", note: "71 Wale Street, approximate" },
+  prompts: {
+    spot:   { text: "Find an object or display about everyday life, family, work, or community." },
+    find:   { text: "What does it teach you about the people and history of Bo-Kaap beyond its familiar photographs?" },
+    memory: { text: "Write down something learned inside the museum; add a photo only if permitted." },
+    yours:  { text: "What would you want a visitor to understand about your own community beyond its appearance?" },
+    dad:    { text: "Talk about something that makes a place feel like home." }
+  }
+},
+{
+  id: "district-six", name: "District Six Museum",
+  catLabel: "Community history", cats: ["history", "museums"], quiet: true,
+  intro: "A memory museum for District Six, the inner-city neighbourhood whose residents were forcibly removed under apartheid. Built with and around the voices of former residents.",
+  sources: [{ label: "districtsix.co.za", url: "https://www.districtsix.co.za" }],
+  planUrl: "https://www.districtsix.co.za", planLabel: "Plan your visit",
+  goodToKnow: "Take it at your own pace. Nothing here needs to be photographed, and reflections can wait until later.",
+  coord: { lat: -33.9276, lng: 18.4234, src: "districtsix.co.za / OpenStreetMap", note: "25A Buitenkant Street, approximate" },
+  prompts: {
+    spot:   { text: "Notice an object, map, photograph, or account that speaks to everyday life in District Six." },
+    find:   { text: "What does the museum explain about forced removals and their effects on a community?" },
+    memory: { text: "Summarize one account in your own words, keeping its context and attribution when available." },
+    yours:  { text: "What is lost when people are separated from a neighborhood, beyond the buildings themselves?" },
+    dad:    { text: "What would each of you want preserved about the place you call home?" }
+  }
+},
+{
+  id: "holocaust-centre", name: "Cape Town Holocaust & Genocide Centre",
+  catLabel: "History and human rights", cats: ["history", "museums"], quiet: true,
+  intro: "A centre in Gardens teaching the history of the Holocaust and other genocides, and what they show about prejudice, propaganda, and human rights.",
+  sources: [{ label: "ctholocaust.co.za", url: "https://ctholocaust.co.za" }],
+  planUrl: "https://ctholocaust.co.za", planLabel: "Plan your visit",
+  goodToKnow: "You can pause and return later — to any part of this visit, including these prompts. No photograph is expected.",
+  coord: { lat: -33.9317, lng: 18.4152, src: "ctholocaust.co.za / OpenStreetMap", note: "88 Hatfield Street, Gardens, approximate" },
+  prompts: {
+    spot:   { text: "Choose an account or exhibit detail you feel ready to spend time with. You may skip this or return later." },
+    find:   { text: "What does an exhibit explain about how prejudice, propaganda, or exclusion can become normalized?" },
+    memory: { text: "Privately record one idea you want to remember. No photograph is required." },
+    yours:  { text: "What question does this visit leave you with about responsibility or human dignity?" },
+    dad:    { text: "If you both want to talk afterward, share something that stayed with you. Silence is also an option." }
+  }
+},
+{
+  id: "ocean-basket", name: "Ocean Basket Bloubergstrand",
+  catLabel: "Food", cats: ["food"],
+  intro: "A seafood restaurant on the Blouberg beachfront, near the classic postcard view of Table Mountain across the bay.",
+  sources: [
+    { label: "Official branch page", url: "https://locations.za.oceanbasket.com/seafood-restaurant-bloubergstrand" },
+    { label: "Original link (redirects)", url: "https://za.oceanbasket.com/store/ocean-basket-bloubergstrand/" }
+  ],
+  planUrl: "https://locations.za.oceanbasket.com/seafood-restaurant-bloubergstrand", planLabel: "Hours and menu",
+  goodToKnow: "Menus change and not every listed dish is always available.",
+  coord: { lat: -33.8098, lng: 18.4642, src: "Official branch page: Shop 1, Beach Boulevard, Bloubergstrand", note: "Approximate along Beach Boulevard" },
+  prompts: {
+    spot:   { text: "Identify an ingredient or preparation method on the menu that you want to understand." },
+    find:   { text: "Learn what it means from the menu or a willing staff member." },
+    memory: { text: "Record your meal, optional price in rand, and a three-word review. Add a photo if you like." },
+    yours:  { text: "What mattered most to your enjoyment of this meal?" },
+    dad:    { text: "Compare your favorite tastes from the trip so far." }
+  }
+},
+{
+  id: "ons-huisie", name: "Ons Huisie",
+  catLabel: "Food and place", cats: ["food", "history"],
+  intro: "A restaurant in a restored fisherman's cottage at Bloubergstrand — a declared heritage building with a long view of the bay.",
+  sources: [{ label: "onshuisie.co.za", url: "https://onshuisie.co.za" }],
+  planUrl: "https://onshuisie.co.za", planLabel: "Hours and booking",
+  coord: { lat: -33.8079, lng: 18.4633, src: "Venue listings: cnr Generaal Jansens & Stadler Roads, Bloubergstrand", note: "Approximate" },
+  prompts: {
+    spot:   { text: "Notice a feature of the building or setting that gives the place character." },
+    find:   { text: "Find out what \u201cOns Huisie\u201d means and one detail the venue shares about its history.", hint: "The restaurant's own walls and website tell its story." },
+    memory: { text: "Photograph or describe your meal or the setting." },
+    yours:  { text: "What would make you want to return to a place like this?" },
+    dad:    { text: "Ask {DAD} what food or setting connects him with a memory of South Africa." }
+  }
+},
+{
+  id: "spier", name: "Spier and Veld Restaurant",
+  catLabel: "Food, landscape, and art", cats: ["food", "nature"],
+  intro: "A historic wine farm outside Stellenbosch; Veld is its restaurant built around ingredients from the farm and region. Book dining separately from an estate visit.",
+  sources: [
+    { label: "Veld Restaurant", url: "https://www.spier.co.za/spaces/veld-restaurant/" },
+    { label: "Spier estate", url: "https://www.spier.co.za" }
+  ],
+  planUrl: "https://www.spier.co.za/spaces/veld-restaurant/", planLabel: "Booking and eligibility",
+  goodToKnow: "Confirm booking and visitor eligibility for Veld — not all hotel spaces are open to day visitors. An estate-only visit is a fine fallback. Nothing here requires alcohol or a purchase.",
+  coord: { lat: -33.9722, lng: 18.7818, src: "spier.co.za / OpenStreetMap", note: "Estate entrance off the R310, approximate" },
+  prompts: {
+    spot:   { text: "In the areas open to you, notice a detail that connects food, landscape, farming, or art." },
+    find:   { text: "Find one specific example of seasonal ingredients or a farm practice from the menu or official information." },
+    memory: { text: "Photograph or describe a dish, permitted artwork, or landscape detail." },
+    yours:  { text: "Does knowing something about where food comes from change your experience of eating it?" },
+    dad:    { text: "Choose one flavor, ingredient, or idea from the visit you might recreate at home." }
+  }
+}
+];
+
+/* Cross-stop activities. "requires" lists destination ids that must each have
+   at least one saved entry before the activity unlocks. Order never matters. */
+const CONNECTIONS = [
+  { id: "penguins", title: "Penguin connection", requires: ["boulders", "sanccob"],
+    prompt: "Compare Boulders and SANCCOB: what did seeing habitat and rehabilitation add to your understanding?" },
+  { id: "oceans", title: "Ocean connection", requires: ["two-oceans-aquarium"], requiresAnyOf: ["boulders", "sea-point", "ocean-basket", "ons-huisie"],
+    prompt: "Link something observed at the Aquarium with a later coastal visit. Distinguish an observation from an inference." },
+  { id: "stories", title: "Stories of place", requiresCount: { of: ["robben-island", "castle", "district-six", "holocaust-centre", "bo-kaap"], n: 2 }, reflective: true,
+    prompt: "After two history visits, compare whose voices you heard and what questions remain. These are distinct histories — this is for reflection, not comparison scoring." },
+  { id: "design", title: "Design connection", requiresCount: { of: ["table-mountain", "castle", "canal-walk", "bayside-mall", "sea-point"], n: 2 },
+    prompt: "Compare a practical design feature at the cableway, Castle, mall, or promenade. What problem does each address?" },
+  { id: "taste", title: "Taste of the trip", requiresCount: { of: ["spur", "stardust", "ocean-basket", "ons-huisie", "spier"], n: 1 },
+    prompt: "Choose a favorite meal and explain why, using your actual journal entries." },
+  { id: "perspectives", title: "Two perspectives", requires: [], always: true, paired: true,
+    prompt: "Optional paired fields on any entry: \u201cWhat I noticed\u201d and \u201cWhat {DAD} noticed.\u201d Only save his words with his agreement." }
+];
+
+const CHECKIN_FIELDS = ["Best moment", "Something new", "Something unexpected", "Tomorrow I'm curious about"];
+
+const INTEREST_OPTIONS = ["Nature", "History", "Museums", "Food", "Design & engineering", "Everyday culture", "Walks & views"];
+
+/* ============ Cape Town Field Notes — application ============ */
+"use strict";
+
+/* ---------- tiny utilities ---------- */
+const $ = (sel, el) => (el || document).querySelector(sel);
+const $$ = (sel, el) => Array.from((el || document).querySelectorAll(sel));
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const uid = () => Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+const CT_TZ = "Africa/Johannesburg";
+function fmtDate(iso) {
+  if (!iso) return "";
+  try {
+    const d = /T/.test(iso) ? new Date(iso) : new Date(iso + "T12:00:00");
+    return d.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric", timeZone: /T/.test(iso) ? CT_TZ : undefined });
+  } catch (e) { return iso; }
+}
+function todayISO() {
+  try {
+    const p = new Intl.DateTimeFormat("en-CA", { timeZone: CT_TZ, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+    return p; // en-CA gives YYYY-MM-DD
+  } catch (e) { return new Date().toISOString().slice(0, 10); }
+}
+function toast(msg, ms) {
+  const t = $("#toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), ms || 2600);
+}
+function confirmBox(title, body, okLabel) {
+  return new Promise(res => {
+    const dlg = $("#confirmDlg");
+    $("#cdTitle").textContent = title;
+    $("#cdBody").textContent = body;
+    $("#cdOk").textContent = okLabel || "Confirm";
+    dlg.showModal ? dlg.showModal() : dlg.setAttribute("open", "");
+    const done = v => { dlg.close ? dlg.close() : dlg.removeAttribute("open"); $("#cdOk").onclick = $("#cdCancel").onclick = null; res(v); };
+    $("#cdOk").onclick = () => done(true);
+    $("#cdCancel").onclick = () => done(false);
+  });
+}
+
+/* ---------- storage: IndexedDB with honest in-memory fallback ---------- */
+const DB = { db: null, fallback: false, mem: { kv: new Map(), entries: new Map(), media: new Map() } };
+
+function openDB() {
+  return new Promise(resolve => {
+    if (!("indexedDB" in window)) { DB.fallback = true; return resolve(); }
+    let req;
+    try { req = indexedDB.open("ctfn", 1); } catch (e) { DB.fallback = true; return resolve(); }
+    req.onupgradeneeded = () => {
+      const d = req.result;
+      if (!d.objectStoreNames.contains("kv")) d.createObjectStore("kv");
+      if (!d.objectStoreNames.contains("entries")) d.createObjectStore("entries", { keyPath: "id" });
+      if (!d.objectStoreNames.contains("media")) d.createObjectStore("media", { keyPath: "id" });
+    };
+    req.onsuccess = () => { DB.db = req.result; resolve(); };
+    req.onerror = () => { DB.fallback = true; resolve(); };
+    setTimeout(() => { if (!DB.db && !DB.fallback) { DB.fallback = true; resolve(); } }, 4000);
+  });
+}
+function tx(store, mode) { return DB.db.transaction(store, mode).objectStore(store); }
+function idb(op) {
+  return new Promise((res, rej) => {
+    let r;
+    try { r = op(); } catch (e) { return rej(e); }
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+}
+async function kvGet(k) { if (DB.fallback) return DB.mem.kv.get(k); try { return await idb(() => tx("kv", "readonly").get(k)); } catch (e) { return DB.mem.kv.get(k); } }
+async function kvSet(k, v) { if (DB.fallback) { DB.mem.kv.set(k, v); return true; } try { await idb(() => tx("kv", "readwrite").put(v, k)); return true; } catch (e) { return false; } }
+async function entAll() { if (DB.fallback) return Array.from(DB.mem.entries.values()); try { return await idb(() => tx("entries", "readonly").getAll()); } catch (e) { return Array.from(DB.mem.entries.values()); } }
+async function entPut(e) { if (DB.fallback) { DB.mem.entries.set(e.id, e); return true; } try { await idb(() => tx("entries", "readwrite").put(e)); return true; } catch (err) { return false; } }
+async function entDel(id) { if (DB.fallback) { DB.mem.entries.delete(id); return true; } try { await idb(() => tx("entries", "readwrite").delete(id)); return true; } catch (e) { return false; } }
+async function medPut(m) { if (DB.fallback) { DB.mem.media.set(m.id, m); return true; } try { await idb(() => tx("media", "readwrite").put(m)); return true; } catch (e) { return false; } }
+async function medGet(id) { if (DB.fallback) return DB.mem.media.get(id); try { return await idb(() => tx("media", "readonly").get(id)); } catch (e) { return DB.mem.media.get(id); } }
+async function medAll() { if (DB.fallback) return Array.from(DB.mem.media.values()); try { return await idb(() => tx("media", "readonly").getAll()); } catch (e) { return Array.from(DB.mem.media.values()); } }
+async function medDel(id) { if (DB.fallback) { DB.mem.media.delete(id); return true; } try { await idb(() => tx("media", "readwrite").delete(id)); return true; } catch (e) { return false; } }
+async function clearAllStores() {
+  if (DB.fallback) { DB.mem.kv.clear(); DB.mem.entries.clear(); DB.mem.media.clear(); return; }
+  for (const s of ["kv", "entries", "media"]) { try { await idb(() => tx(s, "readwrite").clear()); } catch (e) { /* keep going */ } }
+}
+
+/* ---------- app state ---------- */
+const S = {
+  trip: { title: "Cape Town Field Notes", traveler: "", start: "", end: "", interests: [], companion: "Dad" },
+  prefs: { points: false, textSize: "m", onboarded: false },
+  visits: {},   // destId -> {visit:'not'|'in'|'visited', itin:null|'planned'|'postponed'|'skipped', planDate:'', order:n, note:'', venue:'', fav:false}
+  drafts: {},   // key -> {text, src, dad, dadOk}
+  recap: { title: "", places: [], meal: "", photos: [], discoveries: [], dadMemory: "", remember: "" },
+  entries: [],  // cached from store
+  mediaIndex: {} // id -> {mime,name,caption,entryId} light index (blobs stay in store)
+};
+const EXF = { q: "", cats: new Set(), favOnly: false, stateFilter: "all", planDate: "", selected: null };
+
+function vs(destId) {
+  if (!S.visits[destId]) S.visits[destId] = { visit: "not", itin: null, planDate: "", order: 999, note: "", venue: "", fav: false };
+  return S.visits[destId];
+}
+const persist = {
+  trip: debounce(() => kvSet("trip", S.trip), 300),
+  prefs: debounce(() => kvSet("prefs", S.prefs), 300),
+  visits: debounce(() => kvSet("visits", S.visits), 300),
+  drafts: debounce(() => kvSet("drafts", S.drafts), 400),
+  recap: debounce(() => kvSet("recap", S.recap), 400)
+};
+async function loadState() {
+  const [trip, prefs, visits, drafts, recap] = await Promise.all([kvGet("trip"), kvGet("prefs"), kvGet("visits"), kvGet("drafts"), kvGet("recap")]);
+  if (trip) Object.assign(S.trip, trip);
+  if (prefs) Object.assign(S.prefs, prefs);
+  if (visits) S.visits = visits;
+  if (drafts) S.drafts = drafts;
+  if (recap) Object.assign(S.recap, recap);
+  S.entries = (await entAll()).filter(Boolean);
+  const meds = await medAll();
+  S.mediaIndex = {};
+  meds.forEach(m => { S.mediaIndex[m.id] = { mime: m.mime, name: m.name, caption: m.caption, entryId: m.entryId, type: m.type }; });
+}
+
+/* ---------- derived data ---------- */
+const destById = id => DESTINATIONS.find(d => d.id === id);
+const dadLabel = () => S.trip.companion || "Dad";
+const fillDad = s => String(s || "").split("{DAD}").join(dadLabel());
+const entriesFor = destId => S.entries.filter(e => e.destId === destId && !e.checkin);
+const entryForChallenge = (destId, key) => S.entries.find(e => e.destId === destId && e.chKey === key);
+function missionComplete(destId) {
+  return ["spot", "find", "memory"].every(k => !!entryForChallenge(destId, k));
+}
+function pointsTotal() {
+  if (!S.prefs.points) return null;
+  let n = 0;
+  DESTINATIONS.forEach(d => { if (!d.quiet && vs(d.id).visit === "visited" && missionComplete(d.id)) n += 10; });
+  return n;
+}
+function visitedCount() { return DESTINATIONS.filter(d => vs(d.id).visit === "visited").length; }
+function memoriesCount() { return S.entries.filter(e => !e.checkin).length; }
+function stateIcon(st) { return st === "visited" ? "✓" : st === "in" ? "◐" : "○"; }
+function stateText(st) { return st === "visited" ? "Visited" : st === "in" ? "In progress" : "Not visited"; }
+
+/* ---------- media helpers ---------- */
+const objURLs = new Map();
+async function mediaURL(id) {
+  if (objURLs.has(id)) return objURLs.get(id);
+  const m = await medGet(id);
+  if (!m || !m.blob) return null;
+  const u = URL.createObjectURL(m.blob);
+  objURLs.set(id, u); return u;
+}
+function extFor(mime) {
+  const map = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif", "audio/webm": "webm", "audio/mp4": "m4a", "audio/mpeg": "mp3", "audio/ogg": "ogg", "audio/wav": "wav" };
+  return map[mime] || (mime && mime.startsWith("image/") ? "img" : "bin");
+}
+function compressImage(file) {
+  return new Promise((resolve, reject) => {
+    if (!/^image\//.test(file.type)) return reject(new Error("Unsupported format: " + (file.type || "unknown") + ". Use a JPG, PNG, WebP, or GIF."));
+    if (file.size < 900 * 1024) return resolve({ blob: file, mime: file.type });
+    const img = new Image();
+    const u = URL.createObjectURL(file);
+    img.onload = () => {
+      const max = 1600;
+      let { width: w, height: h } = img;
+      if (w > max || h > max) { const r = Math.min(max / w, max / h); w = Math.round(w * r); h = Math.round(h * r); }
+      const c = document.createElement("canvas"); c.width = w; c.height = h;
+      c.getContext("2d").drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(u);
+      c.toBlob(b => b ? resolve({ blob: b, mime: "image/jpeg" }) : resolve({ blob: file, mime: file.type }), "image/jpeg", 0.85);
+    };
+    img.onerror = () => { URL.revokeObjectURL(u); reject(new Error("That image couldn't be read. Try another file.")); };
+    img.src = u;
+  });
+}
+
+/* ---------- router ---------- */
+const VIEWS = {};
+let currentRoute = "";
+function nav(hash) { location.hash = hash; }
+function route() {
+  const h = (location.hash || "#home").slice(1);
+  currentRoute = h;
+  const [name, arg, arg2] = h.split("/");
+  $$(".bnav button").forEach(b => {
+    const on = b.dataset.route === name || (name === "dest" && b.dataset.route === "explore");
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-current", on ? "page" : "false");
+  });
+  const fn = VIEWS[name] || VIEWS.home;
+  const main = $("#view");
+  main.innerHTML = "";
+  main.scrollTop = 0; window.scrollTo(0, 0);
+  fn(main, arg, arg2);
+}
+window.addEventListener("hashchange", route);
+
+/* =========================================================
+   HOME
+   ========================================================= */
+VIEWS.home = function (el) {
+  const name = S.trip.traveler ? ", " + esc(S.trip.traveler) : "";
+  const visited = visitedCount(), mems = memoriesCount();
+  const pts = pointsTotal();
+
+  // Continue last visit: most recently touched destination (entry or draft), not yet marked visited
+  let lastTouched = null, lastT = 0;
+  S.entries.forEach(e => { if (e.destId && e.updatedAt > lastT) { lastT = e.updatedAt; lastTouched = e.destId; } });
+  Object.keys(S.drafts).forEach(k => { const d = S.drafts[k]; if (d && d.t > lastT && d.destId) { lastT = d.t; lastTouched = d.destId; } });
+  const contDest = lastTouched && vs(lastTouched).visit !== "visited" ? destById(lastTouched) : null;
+
+  // Next stop: earliest planned itinerary item not visited; else lowest order unvisited
+  const planned = DESTINATIONS.filter(d => vs(d.id).itin === "planned" && vs(d.id).visit !== "visited")
+    .sort((a, b) => (vs(a.id).planDate || "9999") < (vs(b.id).planDate || "9999") ? -1 : 1);
+  const nextDest = planned[0] || DESTINATIONS.filter(d => vs(d.id).visit === "not" && !d.quiet)
+    .sort((a, b) => vs(a.id).order - vs(b.id).order)[0];
+
+  // Today's discovery: rotating suggestion from unvisited stops (a suggestion, never a claim)
+  const unvisited = DESTINATIONS.filter(d => vs(d.id).visit !== "visited");
+  const doy = Math.floor(Date.now() / 86400000);
+  const disc = unvisited.length ? unvisited[doy % unvisited.length] : null;
+
+  el.innerHTML = `
+  <section class="hero">
+    <p class="kicker">${esc(S.trip.title || "Cape Town Field Notes")}</p>
+    <h1>Welcome back${name}.</h1>
+    <p class="tag">Find something. Learn something. Keep a memory. Make this trip your own.</p>
+  </section>
+
+  <section class="statrow" aria-label="Trip progress">
+    <div class="stat"><b>${visited}</b><span>place${visited === 1 ? "" : "s"} visited</span></div>
+    <div class="stat"><b>${mems}</b><span>memor${mems === 1 ? "y" : "ies"} saved</span></div>
+    ${pts !== null ? `<div class="stat"><b>${pts}</b><span>points</span></div>` : ""}
+  </section>
+
+  ${passportStrip()}
+
+  ${contDest ? `
+  <section class="card act">
+    <p class="cardlabel">Continue your visit</p>
+    <h2>${esc(contDest.name)}</h2>
+    <button class="btn primary" data-go="#dest/${contDest.id}">Pick up where you left off</button>
+  </section>` : ""}
+
+  ${nextDest ? `
+  <section class="card act">
+    <p class="cardlabel">${planned[0] ? "Next on your itinerary" : "A stop you haven't opened yet"}</p>
+    <h2>${esc(nextDest.name)}</h2>
+    <p class="muted">${esc(nextDest.intro)}</p>
+    <div class="btnrow">
+      <button class="btn primary" data-go="#dest/${nextDest.id}">Open this stop</button>
+      <button class="btn" data-go="#explore">Choose another</button>
+    </div>
+  </section>` : `<section class="card"><h2>Every stop opened. Nice.</h2><button class="btn" data-go="#journal">Browse your journal</button></section>`}
+
+  ${disc ? `
+  <section class="card disc">
+    <p class="cardlabel">Today's discovery</p>
+    <p>Somewhere still waiting for you: <b>${esc(disc.name)}</b>. ${esc(disc.intro.split(".")[0])}.</p>
+    <button class="btn small" data-go="#dest/${disc.id}">Take a look</button>
+  </section>` : ""}
+
+  <section class="card">
+    <p class="cardlabel">Evening check-in</p>
+    <p class="muted">Four quick fields, no pressure. Only if today's worth a note.</p>
+    <button class="btn" data-go="#journal/checkin">Check in</button>
+  </section>
+
+  ${connectionsAvailable().length ? `
+  <section class="card">
+    <p class="cardlabel">Connections you've unlocked</p>
+    ${connectionsAvailable().map(c => `<button class="linklike" data-go="#journal/connect/${c.id}">${esc(c.title)}</button>`).join("")}
+  </section>` : ""}
+  `;
+  wireGo(el);
+};
+
+function passportStrip() {
+  const stamps = DESTINATIONS.filter(d => vs(d.id).visit === "visited");
+  if (!stamps.length) return `<section class="passport empty"><p>Your passport is blank — first stamp is the best one.</p></section>`;
+  return `<section class="passport" aria-label="Passport stamps">${stamps.map((d, i) =>
+    d.quiet
+      ? `<span class="stampq" title="${esc(d.name)} — visited">${esc(shortName(d.name))}</span>`
+      : `<span class="stamp r${i % 3}" title="${esc(d.name)} — visited"><i>✓</i>${esc(shortName(d.name))}</span>`
+  ).join("")}</section>`;
+}
+function shortName(n) { return n.length > 16 ? n.split(" ").slice(0, 2).join(" ") : n; }
+function connectionsAvailable() {
+  return CONNECTIONS.filter(c => {
+    if (c.always) return false;
+    const has = id => entriesFor(id).length > 0;
+    if (c.requires && c.requires.length && !c.requires.every(has)) return false;
+    if (c.requiresAnyOf && !c.requiresAnyOf.some(has)) return false;
+    if (c.requiresCount && c.requiresCount.of.filter(has).length < c.requiresCount.n) return false;
+    if (!c.requires && !c.requiresAnyOf && !c.requiresCount) return false;
+    return true;
+  });
+}
+function wireGo(el) {
+  $$("[data-go]", el).forEach(b => b.addEventListener("click", () => nav(b.dataset.go)));
+}
+
+/* =========================================================
+   EXPLORE
+   ========================================================= */
+VIEWS.explore = function (el) {
+  el.innerHTML = `
+  <section class="pagehead">
+    <h1>Explore</h1>
+    <div class="viewtoggle" role="group" aria-label="View as">
+      <button class="on" aria-pressed="true">List</button>
+      <button data-go="#map" aria-pressed="false">Map</button>
+    </div>
+  </section>
+  <div class="searchrow">
+    <input id="exq" type="search" placeholder="Search stops" value="${esc(EXF.q)}" aria-label="Search destinations">
+  </div>
+  <div class="chiprow" role="group" aria-label="Filter by category">
+    ${Object.entries(CATS).map(([k, c]) => `<button class="chip ${EXF.cats.has(k) ? "on" : ""}" data-cat="${k}" aria-pressed="${EXF.cats.has(k)}">${c.icon} ${c.label}</button>`).join("")}
+    <button class="chip ${EXF.favOnly ? "on" : ""}" id="exfav" aria-pressed="${EXF.favOnly}">★ Favorites</button>
+  </div>
+  <div id="exlist" class="destlist"></div>`;
+  wireGo(el);
+  $("#exq").addEventListener("input", debounce(e => { EXF.q = e.target.value; renderExList(); }, 200));
+  $$(".chip[data-cat]", el).forEach(ch => ch.addEventListener("click", () => {
+    const k = ch.dataset.cat;
+    EXF.cats.has(k) ? EXF.cats.delete(k) : EXF.cats.add(k);
+    ch.classList.toggle("on"); ch.setAttribute("aria-pressed", EXF.cats.has(k));
+    renderExList();
+  }));
+  $("#exfav").addEventListener("click", () => { EXF.favOnly = !EXF.favOnly; $("#exfav").classList.toggle("on"); $("#exfav").setAttribute("aria-pressed", EXF.favOnly); renderExList(); });
+  renderExList();
+};
+
+function filteredDests() {
+  const q = EXF.q.trim().toLowerCase();
+  return DESTINATIONS.filter(d => {
+    if (EXF.cats.size && !d.cats.some(c => EXF.cats.has(c))) return false;
+    if (EXF.favOnly && !vs(d.id).fav) return false;
+    if (q && !(d.name.toLowerCase().includes(q) || d.catLabel.toLowerCase().includes(q) || d.intro.toLowerCase().includes(q)
+      || Object.values(d.prompts).some(p => p.text.toLowerCase().includes(q)))) return false;
+    return true;
+  }).sort((a, b) => vs(a.id).order - vs(b.id).order || DESTINATIONS.indexOf(a) - DESTINATIONS.indexOf(b));
+}
+function renderExList() {
+  const list = $("#exlist"); if (!list) return;
+  const ds = filteredDests();
+  if (!ds.length) { list.innerHTML = `<p class="muted pad">No stops match. Clear a filter or try another word.</p>`; return; }
+  list.innerHTML = ds.map(d => {
+    const v = vs(d.id);
+    const saved = entriesFor(d.id).length;
+    return `
+    <article class="destcard cat-${d.cats[0]} ${d.quiet ? "quiet" : ""}" data-id="${d.id}">
+      <button class="favbtn ${v.fav ? "on" : ""}" data-fav="${d.id}" aria-label="${v.fav ? "Remove from favorites" : "Add to favorites"}" aria-pressed="${v.fav}">★</button>
+      <button class="destmain" data-go="#dest/${d.id}">
+        <h2>${esc(d.name)}</h2>
+        <p class="dcat">${esc(d.catLabel)}${d.quiet ? " · quieter visit" : ""}</p>
+        <p class="dmeta"><span class="vst v-${v.visit}">${stateIcon(v.visit)} ${stateText(v.visit)}</span>
+          ${saved ? `<span>${saved} memor${saved === 1 ? "y" : "ies"}</span>` : ""}
+          ${v.itin ? `<span class="itin">${esc(v.itin)}${v.planDate ? " · " + esc(fmtDate(v.planDate)) : ""}</span>` : ""}
+        </p>
+      </button>
+      <div class="destops">
+        ${d.coord ? `<button class="tinybtn" data-map="${d.id}">Show on map</button>` : `<span class="tinytag">Location to confirm</span>`}
+        <button class="tinybtn" data-plan="${d.id}">${v.itin === "planned" ? "Planned ✓" : "Add to itinerary"}</button>
+      </div>
+    </article>`;
+  }).join("");
+  wireGo(list);
+  $$("[data-fav]", list).forEach(b => b.addEventListener("click", () => {
+    const v = vs(b.dataset.fav); v.fav = !v.fav; persist.visits(); renderExList();
+  }));
+  $$("[data-map]", list).forEach(b => b.addEventListener("click", () => { EXF.selected = b.dataset.map; nav("#map"); }));
+  $$("[data-plan]", list).forEach(b => b.addEventListener("click", () => openPlanSheet(b.dataset.plan, renderExList)));
+}
+
+function openPlanSheet(destId, after) {
+  const d = destById(destId); const v = vs(destId);
+  const sheet = $("#sheet");
+  sheet.innerHTML = `
+  <div class="sheetin">
+    <h2>${esc(d.name)}</h2>
+    <label>Itinerary status
+      <select id="plStatus">
+        <option value="">Not on itinerary</option>
+        ${["planned", "postponed", "skipped"].map(s => `<option value="${s}" ${v.itin === s ? "selected" : ""}>${s[0].toUpperCase() + s.slice(1)}</option>`).join("")}
+      </select></label>
+    <label>Planned visit date (optional)
+      <input id="plDate" type="date" value="${esc(v.planDate)}"></label>
+    <label>Order in itinerary
+      <input id="plOrder" type="number" min="1" max="99" value="${v.order === 999 ? "" : v.order}" placeholder="e.g. 3"></label>
+    ${d.locationToConfirm ? `<label>Venue / branch (edit once confirmed)
+      <input id="plVenue" type="text" value="${esc(v.venue)}" placeholder="${esc(d.confirmLabel)}"></label>` : ""}
+    <p class="muted small">Skipped or postponed stops are never failures and never count as visited.</p>
+    <div class="btnrow">
+      <button class="btn primary" id="plSave">Save</button>
+      <button class="btn" id="plClose">Close</button>
+    </div>
+  </div>`;
+  sheet.classList.add("show");
+  $("#plSave").onclick = () => {
+    v.itin = $("#plStatus").value || null;
+    v.planDate = $("#plDate").value;
+    const o = parseInt($("#plOrder").value, 10); v.order = isNaN(o) ? 999 : o;
+    if ($("#plVenue")) v.venue = $("#plVenue").value.trim();
+    persist.visits(); sheet.classList.remove("show"); toast("Itinerary updated");
+    if (after) after();
+  };
+  $("#plClose").onclick = () => sheet.classList.remove("show");
+}
+
+/* =========================================================
+   DESTINATION
+   ========================================================= */
+const PSTATE = { quick: false, idx: {} }; // idx per dest
+
+VIEWS.dest = function (el, id) {
+  const d = destById(id);
+  if (!d) { el.innerHTML = "<p class='pad'>That stop doesn't exist.</p>"; return; }
+  const v = vs(id);
+  const quiet = !!d.quiet;
+  const order = ["spot", "find", "memory", "yours", "dad"];
+  const keys = PSTATE.quick ? ["spot", "find", "memory"] : order;
+  if (PSTATE.idx[id] == null) PSTATE.idx[id] = 0;
+  if (PSTATE.idx[id] >= keys.length) PSTATE.idx[id] = 0;
+
+  el.innerHTML = `
+  <article class="destpage ${quiet ? "quietpage" : ""}">
+    <button class="backlink" data-go="#explore">‹ All stops</button>
+    <header class="dph">
+      <h1>${esc(d.name)}</h1>
+      <p class="dcat">${esc(d.catLabel)}${quiet ? " · a quieter visit — take your time" : ""}</p>
+      <p class="intro">${esc(d.intro)}</p>
+      ${d.goodToKnow ? `<p class="gtk">${esc(fillDad(d.goodToKnow))}</p>` : ""}
+      <p class="srcline">
+        ${d.sources.map(s => s.url ? `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.label)}</a>` : `<span>${esc(s.label)}</span>`).join(" · ")}
+        ${d.planUrl ? ` · <a href="${esc(d.planUrl)}" target="_blank" rel="noopener">${esc(d.planLabel || "Plan your visit")}</a>` : ""}
+      </p>
+      ${d.coord ? `<p class="srcline small">Pin: ${esc(d.coord.note)} (${esc(d.coord.src)}, checked ${VERIFIED}). Details can change — the site above is the live word.</p>`
+      : `<p class="srcline small">${esc(d.confirmLabel || "Location to confirm")}${v.venue ? " — " + esc(v.venue) : ""}. Set the venue under “Itinerary &amp; status.”</p>`}
+    </header>
+
+    <section class="dstatus">
+      <span class="vst v-${v.visit}">${stateIcon(v.visit)} ${stateText(v.visit)}</span>
+      ${missionRow(d)}
+      <div class="btnrow">
+        <button class="btn small" id="dPlan">Itinerary &amp; status</button>
+        ${d.coord ? `<button class="btn small" id="dMap">Show on map</button>` : ""}
+        ${v.visit !== "visited"
+          ? `<button class="btn small primary" id="dDone" ${entriesFor(id).length ? "" : "disabled title='Save at least one response or memory first'"}>Mark visit complete</button>`
+          : `<button class="btn small" id="dUndo">Un-mark visit</button>`}
+      </div>
+      ${entriesFor(id).length === 0 && v.visit !== "visited" ? `<p class="muted small">Save any response — or a free-form memory — and you can mark the visit complete.</p>` : ""}
+    </section>
+
+    <label class="visitnote">Visit note (booking refs, times, anything)
+      <textarea id="dNote" rows="2" placeholder="Optional">${esc(v.note)}</textarea>
+    </label>
+
+    <section class="promptzone">
+      <div class="pzhead">
+        <h2>Missions</h2>
+        <label class="switch"><input type="checkbox" id="quickTgl" ${PSTATE.quick ? "checked" : ""}> Quick visit (3 prompts)</label>
+      </div>
+      <p class="muted small">Spot it and Find out are good starters. Everything is optional — a skipped prompt is not a failure.</p>
+      <div id="promptCard"></div>
+      <nav class="pnav">
+        <button class="btn" id="pBack">‹ Back</button>
+        <span id="pPos" class="muted small"></span>
+        <button class="btn" id="pSkip">Skip</button>
+        <button class="btn" id="pNext">Next ›</button>
+      </nav>
+    </section>
+
+    <section class="dentries">
+      <h2>Saved here</h2>
+      <div id="dEntryList"></div>
+      <button class="btn" data-go="#journal/new/${d.id}">Add a memory not tied to a prompt</button>
+    </section>
+  </article>`;
+  wireGo(el);
+
+  $("#dPlan").onclick = () => openPlanSheet(id, () => route());
+  if ($("#dMap")) $("#dMap").onclick = () => { EXF.selected = id; nav("#map"); };
+  if ($("#dDone")) $("#dDone").onclick = () => {
+    v.visit = "visited"; persist.visits();
+    toast(quiet ? "Visit recorded." : "Stamped. Nice one.");
+    route();
+  };
+  if ($("#dUndo")) $("#dUndo").onclick = () => { v.visit = entriesFor(id).length ? "in" : "not"; persist.visits(); route(); };
+  $("#dNote").addEventListener("input", debounce(e => { v.note = e.target.value; persist.visits(); }, 400));
+  $("#quickTgl").addEventListener("change", e => { PSTATE.quick = e.target.checked; PSTATE.idx[id] = 0; route(); });
+
+  const renderPrompt = () => {
+    const i = PSTATE.idx[id];
+    const key = keys[i];
+    $("#pPos").textContent = (i + 1) + " of " + keys.length;
+    $("#pBack").disabled = i === 0;
+    $("#pNext").textContent = i === keys.length - 1 ? "Done" : "Next ›";
+    renderPromptCard(d, key, quiet);
+  };
+  $("#pBack").onclick = () => { if (PSTATE.idx[id] > 0) { PSTATE.idx[id]--; renderPrompt(); } };
+  const advance = () => { if (PSTATE.idx[id] < keys.length - 1) { PSTATE.idx[id]++; renderPrompt(); } else { toast("That's all the prompts here."); } };
+  $("#pSkip").onclick = advance;
+  $("#pNext").onclick = advance;
+  renderPrompt();
+  renderDestEntries(d);
+};
+
+function missionRow(d) {
+  const keys = ["spot", "find", "memory", "yours", "dad"];
+  return `<span class="mrow" aria-label="Prompt progress">${keys.map(k => {
+    const done = !!entryForChallenge(d.id, k);
+    return `<i class="mdot ${done ? "on" : ""}" title="${esc(fillDad(PROMPT_META[k].label))}${done ? " — saved" : ""}">${done ? "●" : "○"}</i>`;
+  }).join("")}</span>`;
+}
+
+const TYPE_NOTES = {
+  observation: "Observation — saved is saved. No claim of factual correctness needed.",
+  research: "Research — note the answer and where it came from. No exact spelling required.",
+  media: "Media — a photo, a voice note, or an equally valid written description.",
+  reflection: "Reflection — no right answer, no word count, nobody grading.",
+  conversation: "Conversation — for the two of you. Save only what you both want saved."
+};
+
+function renderPromptCard(d, key, quiet) {
+  const meta = PROMPT_META[key];
+  const p = d.prompts[key];
+  const chKey = key;
+  const draftKey = d.id + "::" + chKey;
+  const existing = entryForChallenge(d.id, chKey);
+  const draft = S.drafts[draftKey] || {};
+  const isMedia = meta.type === "media";
+  const isResearch = meta.type === "research";
+  const box = $("#promptCard");
+  box.className = "pcard t-" + meta.type + (quiet ? " pquiet" : "");
+  box.innerHTML = `
+    <p class="plabel">${esc(fillDad(meta.label))}${meta.starter ? ` <em class="starter">starter</em>` : ""}</p>
+    <p class="ptext">${esc(fillDad(p.text))}</p>
+    <p class="ptype">${esc(TYPE_NOTES[meta.type])}</p>
+    <details class="hintbox"><summary>Where could I look?</summary><p>${esc(p.hint || DEFAULT_HINT)}</p></details>
+    <details class="hintbox"><summary>This feature isn't available here</summary><p>Choose another feature at this stop that fits the same idea — your entry still counts, and nothing is marked as missed.</p></details>
+
+    ${isMedia ? `
+    <div class="mediarow">
+      <label class="btn filebtn">Add photo<input type="file" id="phIn" accept="image/*" hidden></label>
+      <span class="muted small">or</span>
+      <span class="describenote">Describe instead ↓ (equally valid)</span>
+    </div>
+    <div id="phPreview" class="phpreview"></div>
+    <div id="voiceZone" class="voicezone"></div>` : ""}
+
+    <label class="anslabel">${isMedia ? "Your description or caption" : "Your answer"}
+      <textarea id="ansTxt" rows="4" placeholder="${quiet ? "In your own time." : "A few words is plenty."}">${esc(draft.text != null ? draft.text : (existing ? existing.text : ""))}</textarea>
+    </label>
+    ${isResearch ? `<label class="anslabel">Where did this come from?
+      <input id="ansSrc" type="text" placeholder="A sign, a guide, the official page…" value="${esc(draft.src != null ? draft.src : (existing && existing.source ? existing.source : ""))}"></label>` : ""}
+
+    <details class="hintbox"><summary>Two perspectives (optional)</summary>
+      <label class="anslabel">What ${esc(dadLabel())} noticed
+        <textarea id="dadTxt" rows="2">${esc(draft.dad != null ? draft.dad : (existing && existing.dadNote ? existing.dadNote : ""))}</textarea></label>
+      <label class="chk"><input type="checkbox" id="dadOk" ${(draft.dadOk != null ? draft.dadOk : (existing && existing.dadNote)) ? "checked" : ""}> ${esc(dadLabel())} is happy for me to save his words</label>
+    </details>
+
+    <div class="btnrow saverow">
+      <button class="btn primary" id="ansSave">${existing ? "Update" : "Save"}</button>
+      <span id="saveState" class="savestate ${existing ? "ok" : ""}">${existing ? "Saved " + fmtDate(new Date(existing.updatedAt).toISOString()) : (draft.text ? "Draft kept" : "")}</span>
+    </div>`;
+
+  const setDraft = debounce(() => {
+    S.drafts[draftKey] = {
+      text: $("#ansTxt").value,
+      src: $("#ansSrc") ? $("#ansSrc").value : "",
+      dad: $("#dadTxt").value, dadOk: $("#dadOk").checked,
+      destId: d.id, t: Date.now()
+    };
+    persist.drafts();
+    $("#saveState").textContent = "Draft kept"; $("#saveState").className = "savestate";
+  }, 400);
+  ["#ansTxt", "#ansSrc", "#dadTxt"].forEach(sel => { const n = $(sel); if (n) n.addEventListener("input", setDraft); });
+  $("#dadOk").addEventListener("change", setDraft);
+
+  // media handling
+  let pendingPhotos = existing ? (existing.mediaIds || []).slice() : [];
+  if (isMedia) {
+    const renderPh = async () => {
+      const zone = $("#phPreview"); zone.innerHTML = "";
+      for (const mid of pendingPhotos) {
+        const info = S.mediaIndex[mid]; if (!info) continue;
+        const u = await mediaURL(mid);
+        const w = document.createElement("div"); w.className = "phitem";
+        if (info.type === "image") {
+          w.innerHTML = `<img src="${u}" alt="${esc(info.caption || "Saved photo")}">`;
+        } else {
+          w.innerHTML = `<audio controls src="${u}"></audio>`;
+        }
+        w.innerHTML += `<input type="text" class="capin" placeholder="Caption" value="${esc(info.caption || "")}" aria-label="Caption">
+          <button class="tinybtn" aria-label="Remove">Remove</button>`;
+        w.querySelector(".capin").addEventListener("change", async ev => {
+          const m = await medGet(mid); if (m) { m.caption = ev.target.value; await medPut(m); S.mediaIndex[mid].caption = m.caption; }
+        });
+        w.querySelector("button").addEventListener("click", async () => {
+          pendingPhotos = pendingPhotos.filter(x => x !== mid);
+          await medDel(mid); delete S.mediaIndex[mid];
+          if (existing) { existing.mediaIds = pendingPhotos.slice(); await entPut(existing); }
+          renderPh();
+        });
+        zone.appendChild(w);
+      }
+    };
+    renderPh();
+    $("#phIn").addEventListener("change", async ev => {
+      const f = ev.target.files[0]; if (!f) return;
+      try {
+        const { blob, mime } = await compressImage(f);
+        const m = { id: uid(), blob, mime, type: "image", name: f.name, caption: "", entryId: existing ? existing.id : null };
+        const ok = await medPut(m);
+        if (!ok) { toast("Photo could not be saved — storage refused it. Your previous content is untouched."); return; }
+        S.mediaIndex[m.id] = { mime, name: f.name, caption: "", entryId: m.entryId, type: "image" };
+        pendingPhotos.push(m.id);
+        if (existing) { existing.mediaIds = pendingPhotos.slice(); await entPut(existing); }
+        renderPh(); toast("Photo saved");
+      } catch (err) { toast(err.message); }
+      ev.target.value = "";
+    });
+    renderVoiceZone($("#voiceZone"), async (audioMedia) => {
+      pendingPhotos.push(audioMedia.id);
+      if (existing) { existing.mediaIds = pendingPhotos.slice(); await entPut(existing); }
+      const w = $("#phPreview"); if (w) { /* re-render */ }
+      route(); // simplest consistent refresh keeps state via drafts
+    });
+  }
+
+  $("#ansSave").onclick = async () => {
+    const text = $("#ansTxt").value.trim();
+    const dadTxt = $("#dadTxt").value.trim();
+    const dadOk = $("#dadOk").checked;
+    if (!text && !(isMedia && pendingPhotos.length)) { toast(isMedia ? "Add a photo, voice note, or a written description first." : "Write something first — a few words is fine."); return; }
+    const now = Date.now();
+    const e = existing || {
+      id: uid(), destId: d.id, chKey, title: fillDad(PROMPT_META[chKey].label) + " — " + d.name,
+      createdAt: now, fav: false, mediaIds: []
+    };
+    e.text = text;
+    e.visitDate = e.visitDate || todayISO();
+    e.updatedAt = now;
+    e.type = meta.type;
+    if (isResearch) e.source = $("#ansSrc").value.trim();
+    e.dadNote = (dadTxt && dadOk) ? dadTxt : "";
+    e.mediaIds = pendingPhotos.slice();
+    const ok = await entPut(e);
+    if (!ok) { toast("Save failed — nothing was overwritten. Try again, or export a backup from Settings."); return; }
+    for (const mid of e.mediaIds) { const m = await medGet(mid); if (m && !m.entryId) { m.entryId = e.id; await medPut(m); S.mediaIndex[mid].entryId = e.id; } }
+    if (!existing) S.entries.push(e);
+    delete S.drafts[draftKey]; persist.drafts();
+    const v = vs(d.id); if (v.visit === "not") { v.visit = "in"; persist.visits(); }
+    $("#saveState").textContent = "Saved ✓"; $("#saveState").className = "savestate ok";
+    if (!quiet && !existing) toast("Saved to your journal.");
+    if (quiet && !existing) toast("Saved.");
+    route();
+  };
+}
+
+function renderVoiceZone(zone, onSaved) {
+  if (!zone) return;
+  const supported = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+  if (!supported) { zone.innerHTML = `<p class="muted small">Voice notes aren't supported in this browser — text works just as well.</p>`; return; }
+  let mime = "";
+  for (const m of ["audio/webm", "audio/mp4", "audio/ogg"]) { if (MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)) { mime = m; break; } }
+  zone.innerHTML = `<button class="btn small" id="recBtn">● Record voice note</button><span class="muted small"> optional — text is always fine</span>`;
+  let rec = null, chunks = [];
+  $("#recBtn", zone).onclick = async () => {
+    const btn = $("#recBtn", zone);
+    if (rec && rec.state === "recording") { rec.stop(); return; }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      chunks = [];
+      rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+      rec.ondataavailable = e => chunks.push(e.data);
+      rec.onstop = async () => {
+        stream.getTracks().forEach(t => t.stop());
+        btn.textContent = "● Record voice note";
+        const blob = new Blob(chunks, { type: rec.mimeType || mime || "audio/webm" });
+        if (!blob.size) { toast("Nothing was recorded."); return; }
+        const m = { id: uid(), blob, mime: blob.type, type: "audio", name: "voice-note", caption: "", entryId: null };
+        const ok = await medPut(m);
+        if (!ok) { toast("Recording couldn't be saved. Nothing else was lost."); return; }
+        S.mediaIndex[m.id] = { mime: m.mime, name: m.name, caption: "", entryId: null, type: "audio" };
+        toast("Voice note saved");
+        onSaved(m);
+      };
+      rec.start();
+      btn.textContent = "■ Stop recording";
+    } catch (e) { toast("Microphone unavailable or permission denied — text works just as well."); }
+  };
+}
+
+async function renderDestEntries(d) {
+  const box = $("#dEntryList"); if (!box) return;
+  const es = entriesFor(d.id).sort((a, b) => b.updatedAt - a.updatedAt);
+  if (!es.length) { box.innerHTML = `<p class="muted small">Nothing saved here yet.</p>`; return; }
+  box.innerHTML = es.map(e => entryCardHTML(e, true)).join("");
+  wireEntryCards(box);
+}
+
+/* ============ part 2: journal, recap, map, settings, boot ============ */
+
+/* ---------- shared entry card ---------- */
+function entryCardHTML(e, compact) {
+  const d = e.destId ? destById(e.destId) : null;
+  const quiet = d && d.quiet;
+  const info = (e.mediaIds || []).map(id => S.mediaIndex[id]).filter(Boolean);
+  return `
+  <article class="entry ${quiet ? "quiet" : ""}" data-eid="${e.id}">
+    <header>
+      <b>${esc(e.title || (d ? d.name : "Elsewhere"))}</b>
+      <span class="muted small">${esc(fmtDate(e.visitDate))}${d ? " · " + esc(d.name) : " · Elsewhere"}</span>
+      <button class="favbtn ${e.fav ? "on" : ""}" data-efav="${e.id}" aria-pressed="${e.fav}" aria-label="Favorite">★</button>
+    </header>
+    ${e.checkin ? `<dl class="checkin">${CHECKIN_FIELDS.map((f, i) => (e.checkin[i] || "").trim() ? `<dt>${esc(f)}</dt><dd>${esc(e.checkin[i])}</dd>` : "").join("")}</dl>`
+      : `<p>${esc(compact && e.text.length > 220 ? e.text.slice(0, 220) + "…" : e.text)}</p>`}
+    ${e.source ? `<p class="muted small">Source: ${esc(e.source)}</p>` : ""}
+    ${e.dadNote ? `<p class="dadnote"><b>What ${esc(dadLabel())} noticed:</b> ${esc(e.dadNote)}</p>` : ""}
+    <div class="ethumbs" data-thumbs="${e.id}">${info.map(() => "").join("")}</div>
+    <footer class="btnrow">
+      <button class="tinybtn" data-eedit="${e.id}">Edit</button>
+      <button class="tinybtn" data-edel="${e.id}">Delete</button>
+    </footer>
+  </article>`;
+}
+async function fillThumbs(box) {
+  for (const zone of $$("[data-thumbs]", box)) {
+    const e = S.entries.find(x => x.id === zone.dataset.thumbs);
+    if (!e || !(e.mediaIds || []).length) continue;
+    zone.innerHTML = "";
+    for (const mid of e.mediaIds) {
+      const info = S.mediaIndex[mid]; if (!info) continue;
+      const u = await mediaURL(mid); if (!u) continue;
+      const cap = info.caption ? `<figcaption>${esc(info.caption)}</figcaption>` : "";
+      zone.insertAdjacentHTML("beforeend", info.type === "image"
+        ? `<figure><img src="${u}" alt="${esc(info.caption || "Saved photo")}">${cap}</figure>`
+        : `<figure><audio controls src="${u}"></audio>${cap}</figure>`);
+    }
+  }
+}
+function wireEntryCards(box) {
+  fillThumbs(box);
+  $$("[data-efav]", box).forEach(b => b.onclick = async () => {
+    const e = S.entries.find(x => x.id === b.dataset.efav); if (!e) return;
+    e.fav = !e.fav; e.updatedAt = Date.now(); await entPut(e); route();
+  });
+  $$("[data-eedit]", box).forEach(b => b.onclick = () => nav("#journal/edit/" + b.dataset.eedit));
+  $$("[data-edel]", box).forEach(b => b.onclick = async () => {
+    const e = S.entries.find(x => x.id === b.dataset.edel); if (!e) return;
+    const ok = await confirmBox("Delete this entry?", "The entry and its photos or recordings will be removed. This can't be undone.", "Delete");
+    if (!ok) return;
+    for (const mid of (e.mediaIds || [])) { await medDel(mid); delete S.mediaIndex[mid]; }
+    await entDel(e.id);
+    S.entries = S.entries.filter(x => x.id !== e.id);
+    S.recap.discoveries = S.recap.discoveries.filter(x => x !== e.id);
+    if (S.recap.meal === e.id) S.recap.meal = "";
+    if (S.recap.dadMemory === e.id) S.recap.dadMemory = "";
+    S.recap.photos = S.recap.photos.filter(pid => S.mediaIndex[pid]);
+    persist.recap();
+    toast("Entry deleted"); route();
+  });
+}
+
+/* =========================================================
+   JOURNAL  (#journal, #journal/new/<destId?>, #journal/edit/<id>,
+             #journal/checkin, #journal/connect/<id>)
+   ========================================================= */
+VIEWS.journal = function (el, sub, arg) {
+  if (sub === "new" || sub === "edit") return journalComposer(el, sub, arg);
+  if (sub === "checkin") return checkinView(el);
+  if (sub === "connect") return connectView(el, arg);
+
+  const es = S.entries.slice().sort((a, b) =>
+    (b.visitDate || "").localeCompare(a.visitDate || "") || b.createdAt - a.createdAt);
+  el.innerHTML = `
+  <section class="pagehead"><h1>My journal</h1>
+    <div class="btnrow">
+      <button class="btn small primary" data-go="#journal/new">+ Add a memory</button>
+      <button class="btn small" data-go="#journal/checkin">Evening check-in</button>
+    </div>
+  </section>
+  ${connectionsAvailable().length ? `<div class="chiprow">${connectionsAvailable().map(c =>
+    `<button class="chip" data-go="#journal/connect/${c.id}">${esc(c.title)}</button>`).join("")}</div>` : ""}
+  <div id="jlist">${es.length ? es.map(e => entryCardHTML(e)).join("")
+    : `<p class="muted pad">Nothing here yet. Open a stop, answer one prompt, and this page starts filling up.</p>`}</div>`;
+  wireGo(el); wireEntryCards($("#jlist"));
+};
+
+function journalComposer(el, mode, arg) {
+  const editing = mode === "edit" ? S.entries.find(x => x.id === arg) : null;
+  if (mode === "edit" && !editing) { el.innerHTML = "<p class='pad'>Entry not found.</p>"; return; }
+  const presetDest = mode === "new" ? (arg || "") : (editing.destId || "");
+  const e = editing || { title: "", destId: presetDest || null, text: "", visitDate: todayISO(), fav: false, mediaIds: [], dadNote: "" };
+  let pending = (e.mediaIds || []).slice();
+
+  el.innerHTML = `
+  <section class="pagehead"><h1>${editing ? "Edit entry" : "New memory"}</h1></section>
+  <div class="card composer">
+    <label>Title (optional)<input id="jcTitle" type="text" value="${esc(e.title)}"></label>
+    <label>Where
+      <select id="jcDest"><option value="">Elsewhere</option>
+      ${DESTINATIONS.map(d => `<option value="${d.id}" ${e.destId === d.id ? "selected" : ""}>${esc(d.name)}</option>`).join("")}</select></label>
+    <label>Visit date<input id="jcDate" type="date" value="${esc(e.visitDate)}"></label>
+    <label>What happened<textarea id="jcText" rows="5">${esc(e.text)}</textarea></label>
+    <div class="mediarow">
+      <label class="btn filebtn">Add photo<input type="file" id="jcPhoto" accept="image/*" hidden></label>
+      <span class="describenote">or describe it in words — equally valid</span>
+    </div>
+    <div id="jcPreview" class="phpreview"></div>
+    <div id="jcVoice" class="voicezone"></div>
+    <details class="hintbox"><summary>Two perspectives (optional)</summary>
+      <label>What ${esc(dadLabel())} noticed<textarea id="jcDad" rows="2">${esc(e.dadNote || "")}</textarea></label>
+      <label class="chk"><input type="checkbox" id="jcDadOk" ${e.dadNote ? "checked" : ""}> ${esc(dadLabel())} is happy for me to save his words</label>
+    </details>
+    <div class="btnrow">
+      <button class="btn primary" id="jcSave">${editing ? "Update" : "Save"}</button>
+      <button class="btn" data-go="#journal">Cancel</button>
+    </div>
+  </div>`;
+  wireGo(el);
+
+  const renderPrev = async () => {
+    const zone = $("#jcPreview"); zone.innerHTML = "";
+    for (const mid of pending) {
+      const info = S.mediaIndex[mid]; if (!info) continue;
+      const u = await mediaURL(mid);
+      const w = document.createElement("div"); w.className = "phitem";
+      w.innerHTML = (info.type === "image" ? `<img src="${u}" alt="">` : `<audio controls src="${u}"></audio>`) +
+        `<input type="text" class="capin" placeholder="Caption" value="${esc(info.caption || "")}"><button class="tinybtn">Remove</button>`;
+      w.querySelector(".capin").addEventListener("change", async ev => {
+        const m = await medGet(mid); if (m) { m.caption = ev.target.value; await medPut(m); S.mediaIndex[mid].caption = m.caption; }
+      });
+      w.querySelector("button").onclick = async () => { pending = pending.filter(x => x !== mid); await medDel(mid); delete S.mediaIndex[mid]; renderPrev(); };
+      zone.appendChild(w);
+    }
+  };
+  renderPrev();
+  $("#jcPhoto").addEventListener("change", async ev => {
+    const f = ev.target.files[0]; if (!f) return;
+    try {
+      const { blob, mime } = await compressImage(f);
+      const m = { id: uid(), blob, mime, type: "image", name: f.name, caption: "", entryId: e.id || null };
+      if (!(await medPut(m))) { toast("Photo could not be saved."); return; }
+      S.mediaIndex[m.id] = { mime, name: f.name, caption: "", entryId: m.entryId, type: "image" };
+      pending.push(m.id); renderPrev(); toast("Photo saved");
+    } catch (err) { toast(err.message); }
+    ev.target.value = "";
+  });
+  renderVoiceZone($("#jcVoice"), m => { pending.push(m.id); renderPrev(); });
+
+  $("#jcSave").onclick = async () => {
+    const text = $("#jcText").value.trim();
+    if (!text && !pending.length) { toast("Write something or add a photo first."); return; }
+    const now = Date.now();
+    const rec = editing || { id: uid(), createdAt: now, fav: false };
+    rec.title = $("#jcTitle").value.trim();
+    rec.destId = $("#jcDest").value || null;
+    rec.visitDate = $("#jcDate").value || todayISO();
+    rec.text = text;
+    rec.updatedAt = now;
+    rec.dadNote = ($("#jcDadOk").checked ? $("#jcDad").value.trim() : "");
+    rec.mediaIds = pending.slice();
+    if (!(await entPut(rec))) { toast("Save failed — nothing was overwritten. Try again or export a backup."); return; }
+    for (const mid of pending) { const m = await medGet(mid); if (m && !m.entryId) { m.entryId = rec.id; await medPut(m); S.mediaIndex[mid].entryId = rec.id; } }
+    if (!editing) S.entries.push(rec);
+    if (rec.destId) { const v = vs(rec.destId); if (v.visit === "not") { v.visit = "in"; persist.visits(); } }
+    toast(editing ? "Updated" : "Saved to your journal");
+    nav("#journal");
+  };
+}
+
+function checkinView(el) {
+  el.innerHTML = `
+  <section class="pagehead"><h1>Evening check-in</h1></section>
+  <div class="card composer">
+    <p class="muted">Short answers welcome. Skip anything.</p>
+    ${CHECKIN_FIELDS.map((f, i) => `<label>${esc(f)}<textarea id="ci${i}" rows="2"></textarea></label>`).join("")}
+    <label>Date<input id="ciDate" type="date" value="${todayISO()}"></label>
+    <div class="btnrow"><button class="btn primary" id="ciSave">Save check-in</button>
+    <button class="btn" data-go="#journal">Cancel</button></div>
+  </div>`;
+  wireGo(el);
+  $("#ciSave").onclick = async () => {
+    const vals = CHECKIN_FIELDS.map((_, i) => $("#ci" + i).value.trim());
+    if (!vals.some(v => v)) { toast("All four fields are empty — nothing to save."); return; }
+    const now = Date.now();
+    const rec = { id: uid(), destId: null, title: "Evening check-in", checkin: vals, text: vals.filter(Boolean).join(" · "), visitDate: $("#ciDate").value || todayISO(), createdAt: now, updatedAt: now, fav: false, mediaIds: [] };
+    if (!(await entPut(rec))) { toast("Save failed. Try again."); return; }
+    S.entries.push(rec); toast("Check-in saved"); nav("#journal");
+  };
+}
+
+function connectView(el, cid) {
+  const c = CONNECTIONS.find(x => x.id === cid);
+  if (!c) { el.innerHTML = "<p class='pad'>Not found.</p>"; return; }
+  const relatedIds = (c.requires || []).concat(c.requiresAnyOf || [], c.requiresCount ? c.requiresCount.of : []);
+  const related = S.entries.filter(e => relatedIds.includes(e.destId));
+  el.innerHTML = `
+  <section class="pagehead"><h1>${esc(c.title)}</h1></section>
+  <div class="card composer">
+    <p>${esc(fillDad(c.prompt))}</p>
+    ${related.length ? `<details class="hintbox"><summary>Your related entries</summary>${related.map(e =>
+      `<p class="small"><b>${esc(destById(e.destId).name)}:</b> ${esc(e.text.slice(0, 140))}${e.text.length > 140 ? "…" : ""}</p>`).join("")}</details>` : ""}
+    <label>Your thoughts<textarea id="cnTxt" rows="5"></textarea></label>
+    <div class="btnrow"><button class="btn primary" id="cnSave">Save</button><button class="btn" data-go="#journal">Cancel</button></div>
+  </div>`;
+  wireGo(el);
+  $("#cnSave").onclick = async () => {
+    const text = $("#cnTxt").value.trim();
+    if (!text) { toast("Write something first."); return; }
+    const now = Date.now();
+    const rec = { id: uid(), destId: null, title: c.title, text, visitDate: todayISO(), createdAt: now, updatedAt: now, fav: false, mediaIds: [], connect: c.id };
+    if (!(await entPut(rec))) { toast("Save failed. Try again."); return; }
+    S.entries.push(rec); toast("Saved"); nav("#journal");
+  };
+}
+
+/* =========================================================
+   RECAP
+   ========================================================= */
+VIEWS.recap = function (el) {
+  const visited = DESTINATIONS.filter(d => vs(d.id).visit === "visited");
+  const realEntries = S.entries.filter(e => !e.checkin);
+  const foodEntries = realEntries.filter(e => e.destId && destById(e.destId).cats.includes("food"));
+  const mealPool = foodEntries.length ? foodEntries : realEntries;
+  const photoPool = Object.keys(S.mediaIndex).filter(id => S.mediaIndex[id].type === "image");
+  const dadPool = realEntries.filter(e => e.dadNote || (e.chKey === "dad"));
+  if (!S.recap.title) S.recap.title = S.trip.title || "Cape Town Field Notes";
+
+  el.innerHTML = `
+  <section class="pagehead"><h1>Trip recap</h1></section>
+  <p class="muted pad">Built only from what you actually saved. Empty sections simply won't appear.</p>
+  <div class="card composer">
+    <label>Cover title<input id="rcTitle" type="text" value="${esc(S.recap.title)}"></label>
+
+    <fieldset><legend>Favorite places (${visited.length ? "pick any" : "none visited yet"})</legend>
+      ${visited.map(d => `<label class="chk"><input type="checkbox" data-rcplace="${d.id}" ${S.recap.places.includes(d.id) ? "checked" : ""}> ${esc(d.name)}</label>`).join("") || "<p class='muted small'>Mark visits complete and they'll appear here.</p>"}
+    </fieldset>
+
+    <fieldset><legend>Favorite meal</legend>
+      <select id="rcMeal"><option value="">— none —</option>
+      ${mealPool.map(e => `<option value="${e.id}" ${S.recap.meal === e.id ? "selected" : ""}>${esc((destById(e.destId) || { name: "Elsewhere" }).name)}: ${esc(e.text.slice(0, 50))}</option>`).join("")}</select>
+    </fieldset>
+
+    <fieldset><legend>Photos for the keepsake</legend>
+      <div id="rcPhotos" class="rcphotos">${photoPool.length ? "" : "<p class='muted small'>No photos saved yet.</p>"}</div>
+    </fieldset>
+
+    <fieldset><legend>Three discoveries</legend>
+      ${realEntries.length ? realEntries.map(e => `<label class="chk"><input type="checkbox" data-rcdisc="${e.id}" ${S.recap.discoveries.includes(e.id) ? "checked" : ""} ${S.recap.discoveries.length >= 3 && !S.recap.discoveries.includes(e.id) ? "disabled" : ""}> ${esc(e.title || (destById(e.destId) || { name: "Elsewhere" }).name)}: ${esc(e.text.slice(0, 60))}</label>`).join("") : "<p class='muted small'>Save some entries first.</p>"}
+    </fieldset>
+
+    <fieldset><legend>A ${esc(dadLabel())} memory (optional)</legend>
+      <select id="rcDad"><option value="">— none —</option>
+      ${dadPool.map(e => `<option value="${e.id}" ${S.recap.dadMemory === e.id ? "selected" : ""}>${esc(e.text.slice(0, 60))}</option>`).join("")}</select>
+    </fieldset>
+
+    <label>What I want to remember a year from now
+      <textarea id="rcRem" rows="3">${esc(S.recap.remember)}</textarea></label>
+
+    <div class="btnrow">
+      <button class="btn primary" id="rcPrint">Preview &amp; print / save as PDF</button>
+    </div>
+  </div>`;
+
+  const save = () => persist.recap();
+  $("#rcTitle").addEventListener("input", debounce(e => { S.recap.title = e.target.value; save(); }, 300));
+  $$("[data-rcplace]").forEach(cb => cb.onchange = () => {
+    const id = cb.dataset.rcplace;
+    S.recap.places = cb.checked ? S.recap.places.concat(id) : S.recap.places.filter(x => x !== id); save();
+  });
+  $("#rcMeal").onchange = e => { S.recap.meal = e.target.value; save(); };
+  $$("[data-rcdisc]").forEach(cb => cb.onchange = () => {
+    const id = cb.dataset.rcdisc;
+    S.recap.discoveries = cb.checked ? S.recap.discoveries.concat(id) : S.recap.discoveries.filter(x => x !== id);
+    save(); route();
+  });
+  $("#rcDad").onchange = e => { S.recap.dadMemory = e.target.value; save(); };
+  $("#rcRem").addEventListener("input", debounce(e => { S.recap.remember = e.target.value; save(); }, 300));
+
+  (async () => {
+    const zone = $("#rcPhotos");
+    for (const pid of photoPool) {
+      const u = await mediaURL(pid);
+      const on = S.recap.photos.includes(pid);
+      const l = document.createElement("label");
+      l.className = "rcph" + (on ? " on" : "");
+      l.innerHTML = `<input type="checkbox" ${on ? "checked" : ""}><img src="${u}" alt="${esc(S.mediaIndex[pid].caption || "Photo")}">`;
+      l.querySelector("input").onchange = ev => {
+        S.recap.photos = ev.target.checked ? S.recap.photos.concat(pid) : S.recap.photos.filter(x => x !== pid);
+        l.classList.toggle("on", ev.target.checked); save();
+      };
+      zone.appendChild(l);
+    }
+  })();
+
+  $("#rcPrint").onclick = buildPrintRecap;
+};
+
+async function buildPrintRecap() {
+  const box = $("#printRecap");
+  const visitedSel = S.recap.places.map(destById).filter(Boolean);
+  const timeline = DESTINATIONS.filter(d => vs(d.id).visit === "visited")
+    .map(d => {
+      const es = entriesFor(d.id);
+      const date = es.map(e => e.visitDate).sort()[0] || "";
+      return { d, date };
+    }).sort((a, b) => (a.date || "9999").localeCompare(b.date || "9999"));
+  const meal = S.entries.find(e => e.id === S.recap.meal);
+  const discs = S.recap.discoveries.map(id => S.entries.find(e => e.id === id)).filter(Boolean);
+  const dadE = S.entries.find(e => e.id === S.recap.dadMemory);
+
+  let photoHTML = "";
+  for (const pid of S.recap.photos) {
+    const info = S.mediaIndex[pid]; if (!info) continue;
+    const u = await mediaURL(pid); if (!u) continue;
+    photoHTML += `<figure><img src="${u}" alt="${esc(info.caption || "")}"><figcaption>${esc(info.caption || "")}</figcaption></figure>`;
+  }
+  // audio in print: caption note only (the backup keeps the real file)
+  const audioCaps = S.recap.discoveries.concat(meal ? [meal.id] : []).map(id => S.entries.find(e => e.id === id)).filter(Boolean)
+    .flatMap(e => (e.mediaIds || []).map(m => S.mediaIndex[m]).filter(m => m && m.type === "audio" && m.caption));
+
+  box.innerHTML = `
+    <h1>${esc(S.recap.title || "Cape Town Field Notes")}</h1>
+    <p class="prsub">${esc(S.trip.traveler ? S.trip.traveler + (S.trip.companion ? " & " + S.trip.companion : "") : "")}
+      ${S.trip.start ? " · " + esc(fmtDate(S.trip.start)) + (S.trip.end ? " – " + esc(fmtDate(S.trip.end)) : "") : ""}</p>
+    ${timeline.length ? `<h2>Where we went</h2><ol class="prtimeline">${timeline.map(t =>
+      `<li><b>${esc(t.d.name)}</b>${t.date ? " — " + esc(fmtDate(t.date)) : ""}</li>`).join("")}</ol>` : ""}
+    ${visitedSel.length ? `<h2>Favorite places</h2><p>${visitedSel.map(d => esc(d.name)).join(" · ")}</p>` : ""}
+    ${photoHTML ? `<h2>Pictures</h2><div class="prphotos">${photoHTML}</div>` : ""}
+    ${meal ? `<h2>Favorite meal</h2><p><b>${esc((destById(meal.destId) || { name: "Elsewhere" }).name)}.</b> ${esc(meal.text)}</p>` : ""}
+    ${discs.length ? `<h2>Discoveries</h2>${discs.map(e => `<p><b>${esc(e.title || (destById(e.destId) || { name: "" }).name)}.</b> ${esc(e.text)}</p>`).join("")}` : ""}
+    ${dadE ? `<h2>A ${esc(dadLabel())} memory</h2><p>${esc(dadE.dadNote || dadE.text)}</p>` : ""}
+    ${audioCaps.length ? `<h2>Voice notes</h2><p class="muted">${audioCaps.map(a => esc(a.caption)).join(" · ")} (audio files live in the app and its backups)</p>` : ""}
+    ${S.recap.remember ? `<h2>What I want to remember a year from now</h2><p>${esc(S.recap.remember)}</p>` : ""}
+    <p class="prfoot">Kept with Cape Town Field Notes.</p>`;
+  document.body.classList.add("printing");
+  setTimeout(() => { window.print(); setTimeout(() => document.body.classList.remove("printing"), 300); }, 150);
+}
+
+/* =========================================================
+   MAP
+   ========================================================= */
+const MAP = { lib: null, map: null, cluster: null, markers: {}, loaded: false, failed: false, findMarker: null, dayLayer: null };
+
+function loadScript(src) {
+  return new Promise((res, rej) => { const s = document.createElement("script"); s.src = src; s.onload = res; s.onerror = () => rej(new Error("load " + src)); document.head.appendChild(s); });
+}
+function loadCSS(href) {
+  return new Promise(res => { const l = document.createElement("link"); l.rel = "stylesheet"; l.href = href; l.onload = res; l.onerror = res; document.head.appendChild(l); });
+}
+function withTimeout(p, ms) { return Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), ms))]); }
+async function ensureLeaflet() {
+  if (MAP.loaded) return true;
+  if (MAP.failed) return false;
+  try {
+    await withTimeout((async () => {
+      await loadCSS("https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css");
+      await loadScript("https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js");
+      try {
+        await loadCSS("https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.min.css");
+        await loadCSS("https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.min.css");
+        await loadScript("https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js");
+      } catch (e) { /* clustering optional */ }
+    })(), 9000);
+    if (!window.L) throw new Error("leaflet missing");
+    MAP.loaded = true; return true;
+  } catch (e) { MAP.failed = true; return false; }
+}
+
+VIEWS.map = function (el) {
+  el.innerHTML = `
+  <section class="pagehead"><h1>Map</h1>
+    <div class="viewtoggle" role="group" aria-label="View as">
+      <button data-go="#explore" aria-pressed="false">List</button>
+      <button class="on" aria-pressed="true">Map</button>
+    </div>
+  </section>
+  <div class="chiprow" role="group" aria-label="Filter pins">
+    ${Object.entries(CATS).map(([k, c]) => `<button class="chip ${EXF.cats.has(k) ? "on" : ""}" data-mcat="${k}" aria-pressed="${EXF.cats.has(k)}">${c.icon} ${c.label}</button>`).join("")}
+    <button class="chip ${EXF.favOnly ? "on" : ""}" id="mfav" aria-pressed="${EXF.favOnly}">★ Favorites</button>
+    <select id="mstate" aria-label="Visit state">
+      <option value="all">All states</option><option value="not">Not visited</option>
+      <option value="in">In progress</option><option value="visited">Visited</option>
+    </select>
+    <input id="mday" type="date" aria-label="Show planned stops for a day" value="${esc(EXF.planDate)}">
+  </div>
+  <div id="mapwrap">
+    <div id="map" role="application" aria-label="Interactive map of destinations"></div>
+    <div class="mapbtns">
+      <button class="btn small" id="mAll">Show all stops</button>
+      <button class="btn small" id="mFind">Find me</button>
+    </div>
+    <div id="mapmsg" class="mapmsg" hidden></div>
+  </div>
+  <p class="legend"><span>○ not visited</span><span>◐ in progress</span><span>✓ visited</span><span class="lq">▪ quieter stop</span><span>◇ access point</span></p>
+  <p class="muted small pad">Pins are approximate to the visitor entrance (sources checked ${VERIFIED}). Any connecting line is your planned stop order, not a navigable route. Map © OpenStreetMap contributors.</p>
+  <div id="mSheet"></div>
+  ${DESTINATIONS.some(d => !d.coord) ? `
+  <section class="card">
+    <p class="cardlabel">Location to confirm</p>
+    ${DESTINATIONS.filter(d => !d.coord).map(d => `
+      <div class="tocitem"><b>${esc(d.name)}</b> — ${esc(vs(d.id).venue || d.confirmLabel)}
+      <button class="tinybtn" data-plan="${d.id}">Set venue</button>
+      <button class="tinybtn" data-go="#dest/${d.id}">Open stop</button></div>`).join("")}
+  </section>` : ""}
+  <div id="mapListFallback"></div>`;
+  wireGo(el);
+  $$("[data-plan]", el).forEach(b => b.onclick = () => openPlanSheet(b.dataset.plan, () => route()));
+  $$("[data-mcat]", el).forEach(ch => ch.onclick = () => {
+    const k = ch.dataset.mcat;
+    EXF.cats.has(k) ? EXF.cats.delete(k) : EXF.cats.add(k);
+    ch.classList.toggle("on"); ch.setAttribute("aria-pressed", EXF.cats.has(k)); refreshMarkers();
+  });
+  $("#mfav").onclick = () => { EXF.favOnly = !EXF.favOnly; $("#mfav").classList.toggle("on"); refreshMarkers(); };
+  $("#mstate").value = EXF.stateFilter;
+  $("#mstate").onchange = e => { EXF.stateFilter = e.target.value; refreshMarkers(); };
+  $("#mday").onchange = e => { EXF.planDate = e.target.value; drawDayPlan(); };
+
+  initMap();
+};
+
+async function initMap() {
+  const msg = $("#mapmsg");
+  msg.hidden = false; msg.innerHTML = "Loading map…";
+  const ok = navigator.onLine !== false && await ensureLeaflet();
+  if (!ok || !window.L) {
+    msg.innerHTML = `Map couldn't load (offline, or the map provider is unreachable). Everything still works from the list. <button class="btn small" id="mRetry">Retry</button>`;
+    $("#mRetry").onclick = () => { MAP.failed = false; initMap(); };
+    renderMapListFallback();
+    return;
+  }
+  msg.hidden = true;
+  const L = window.L;
+  if (MAP.map) { MAP.map.remove(); MAP.map = null; }
+  MAP.map = L.map("map", { zoomControl: true });
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(MAP.map);
+  MAP.map.on("tileerror", () => { const m = $("#mapmsg"); if (m) { m.hidden = false; m.textContent = "Some map tiles couldn't load — you may be offline. The list below still works."; } });
+
+  MAP.cluster = (L.markerClusterGroup ? L.markerClusterGroup({ maxClusterRadius: 40, spiderfyOnMaxZoom: true }) : L.layerGroup());
+  MAP.map.addLayer(MAP.cluster);
+  refreshMarkers(true);
+  drawDayPlan();
+
+  $("#mAll").onclick = fitAll;
+  $("#mFind").onclick = findMe;
+
+  if (EXF.selected) {
+    const d = destById(EXF.selected);
+    if (d && d.coord) { MAP.map.setView([d.coord.lat, d.coord.lng], 15); openMapCard(d.id); }
+    EXF.selected = null;
+  }
+  renderMapListFallback();
+}
+
+function pinIcon(d) {
+  const v = vs(d.id);
+  const cls = "pin v-" + v.visit + " cat-" + d.cats[0] + (d.quiet ? " pinquiet" : "");
+  const glyph = v.visit === "visited" ? "✓" : (CATS[d.cats[0]] || {}).icon || "●";
+  return window.L.divIcon({ className: "", html: `<span class="${cls}" role="img" aria-label="${esc(d.name)}, ${stateText(v.visit)}">${glyph}</span>`, iconSize: [34, 34], iconAnchor: [17, 17] });
+}
+function accessIcon(name) {
+  return window.L.divIcon({ className: "", html: `<span class="pin access" role="img" aria-label="${esc(name)}">◇</span>`, iconSize: [26, 26], iconAnchor: [13, 13] });
+}
+function mapVisible(d) {
+  if (!d.coord) return false;
+  if (EXF.cats.size && !d.cats.some(c => EXF.cats.has(c))) return false;
+  if (EXF.favOnly && !vs(d.id).fav) return false;
+  if (EXF.stateFilter !== "all" && vs(d.id).visit !== EXF.stateFilter) return false;
+  return true;
+}
+function refreshMarkers(first) {
+  if (!MAP.map || !window.L) return;
+  MAP.cluster.clearLayers();
+  MAP.markers = {};
+  DESTINATIONS.forEach(d => {
+    if (!mapVisible(d)) return;
+    const m = window.L.marker([d.coord.lat, d.coord.lng], { icon: pinIcon(d), keyboard: true, title: d.name });
+    m.on("click", () => openMapCard(d.id));
+    MAP.cluster.addLayer(m);
+    MAP.markers[d.id] = m;
+    (d.access || []).forEach(a => {
+      const am = window.L.marker([a.lat, a.lng], { icon: accessIcon(a.name), keyboard: true, title: a.name });
+      am.bindPopup(`<b>${esc(a.name)}</b><br><span class="small">${esc(a.note)}</span><br><a target="_blank" rel="noopener" href="${dirURL(a.name + ", Cape Town")}">Directions</a>`);
+      MAP.cluster.addLayer(am);
+    });
+  });
+  if (first) fitAll();
+  renderMapListFallback();
+}
+function fitAll() {
+  const pts = DESTINATIONS.filter(mapVisible).map(d => [d.coord.lat, d.coord.lng]);
+  if (pts.length && MAP.map) MAP.map.fitBounds(pts, { padding: [30, 30] });
+}
+function dirURL(q) { return "https://www.google.com/maps/dir/?api=1&destination=" + encodeURIComponent(q); }
+
+function openMapCard(id) {
+  const d = destById(id); const v = vs(id);
+  const saved = entriesFor(id).length;
+  const dest = d.access && d.access.length && (id === "robben-island" || id === "table-mountain")
+    ? d.access[0] : null; // directions to the access point where one exists
+  const dq = dest ? dest.name + ", Cape Town" : d.name + ", Cape Town";
+  const sheet = $("#mSheet");
+  sheet.innerHTML = `
+  <div class="mcard ${d.quiet ? "quiet" : ""}">
+    <h2>${esc(d.name)}</h2>
+    <p class="dcat">${esc(d.catLabel)} · <span class="vst v-${v.visit}">${stateIcon(v.visit)} ${stateText(v.visit)}</span>
+      ${saved ? ` · ${saved} memor${saved === 1 ? "y" : "ies"}` : ""}</p>
+    <p class="small">${esc(d.intro)}</p>
+    ${dest ? `<p class="small muted">Directions go to ${esc(dest.name)} — ${esc(dest.note.toLowerCase())}. Ferry/cableway travel follows official booking guidance.</p>` : ""}
+    <div class="btnrow">
+      <button class="btn small primary" data-go="#dest/${d.id}">${saved || v.visit !== "not" ? "Continue visit" : "Start visit"}</button>
+      <button class="btn small" data-go="#journal">View memories</button>
+      <button class="btn small" id="mcPlan">Add to itinerary</button>
+      <a class="btn small" target="_blank" rel="noopener" href="${dirURL(dq)}">Directions</a>
+      <button class="btn small" id="mcClose">Close</button>
+    </div>
+  </div>`;
+  wireGo(sheet);
+  $("#mcPlan").onclick = () => openPlanSheet(id, () => { refreshMarkers(); openMapCard(id); });
+  $("#mcClose").onclick = () => { sheet.innerHTML = ""; };
+}
+
+function drawDayPlan() {
+  if (!MAP.map || !window.L) return;
+  if (MAP.dayLayer) { MAP.map.removeLayer(MAP.dayLayer); MAP.dayLayer = null; }
+  const date = EXF.planDate; if (!date) return;
+  const stops = DESTINATIONS.filter(d => d.coord && vs(d.id).itin === "planned" && vs(d.id).planDate === date)
+    .sort((a, b) => vs(a.id).order - vs(b.id).order);
+  if (!stops.length) { toast("No planned stops on that day yet."); return; }
+  const g = window.L.layerGroup();
+  stops.forEach((d, i) => {
+    g.addLayer(window.L.marker([d.coord.lat, d.coord.lng], {
+      icon: window.L.divIcon({ className: "", html: `<span class="pin daynum">${i + 1}</span>`, iconSize: [30, 30], iconAnchor: [15, 15] }),
+      title: (i + 1) + ". " + d.name
+    }).on("click", () => openMapCard(d.id)));
+  });
+  if (stops.length > 1) {
+    const line = window.L.polyline(stops.map(d => [d.coord.lat, d.coord.lng]), { dashArray: "6 8", weight: 2, color: "#0F4C5C" });
+    line.bindTooltip("Planned stop order — not a navigable route", { sticky: true });
+    g.addLayer(line);
+  }
+  MAP.dayLayer = g.addTo(MAP.map);
+  MAP.map.fitBounds(stops.map(d => [d.coord.lat, d.coord.lng]), { padding: [40, 40] });
+}
+
+function findMe() {
+  if (!navigator.geolocation) { toast("Location isn't available in this browser. Everything works without it."); return; }
+  toast("Finding you… location is used once and never saved.");
+  navigator.geolocation.getCurrentPosition(pos => {
+    if (!MAP.map || !window.L) return;
+    const { latitude: lat, longitude: lng, accuracy } = pos.coords;
+    if (MAP.findMarker) MAP.map.removeLayer(MAP.findMarker);
+    MAP.findMarker = window.L.layerGroup([
+      window.L.circle([lat, lng], { radius: accuracy, color: "#0F4C5C", weight: 1, fillOpacity: .08 }),
+      window.L.circleMarker([lat, lng], { radius: 7, color: "#0F4C5C", fillColor: "#0F4C5C", fillOpacity: .9 })
+    ]).addTo(MAP.map);
+    MAP.map.setView([lat, lng], Math.max(MAP.map.getZoom(), 13));
+    const withD = DESTINATIONS.filter(mapVisible).map(d => ({ d, km: haversine(lat, lng, d.coord.lat, d.coord.lng) })).sort((a, b) => a.km - b.km).slice(0, 3);
+    if (withD.length) toast("Nearby (straight-line, not travel distance): " + withD.map(x => x.d.name + " ~" + x.km.toFixed(1) + " km").join(" · "), 5200);
+  }, err => {
+    toast(err.code === 1 ? "Location permission denied — no problem, the map still works." : "Couldn't get a location fix. The map still works.");
+  }, { timeout: 8000, maximumAge: 60000 });
+}
+function haversine(a, b, c, d) {
+  const R = 6371, r = x => x * Math.PI / 180;
+  const dLat = r(c - a), dLon = r(d - b);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(r(a)) * Math.cos(r(c)) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+function renderMapListFallback() {
+  const box = $("#mapListFallback"); if (!box) return;
+  const ds = DESTINATIONS.filter(d => d.coord && mapVisible(d));
+  box.innerHTML = `<details class="hintbox pad"><summary>All map actions as a list (keyboard &amp; screen-reader friendly)</summary>
+    ${ds.map(d => `<div class="tocitem"><b>${esc(d.name)}</b> · ${stateText(vs(d.id).visit)}
+      <button class="tinybtn" data-go="#dest/${d.id}">Open</button>
+      <a class="tinybtn" target="_blank" rel="noopener" href="${dirURL(d.name + ", Cape Town")}">Directions</a></div>`).join("")}
+  </details>`;
+  wireGo(box);
+}
+
+/* =========================================================
+   SETTINGS
+   ========================================================= */
+VIEWS.settings = function (el) {
+  el.innerHTML = `
+  <section class="pagehead"><h1>Settings</h1></section>
+  <div class="card composer">
+    <h2>Profile &amp; trip</h2>
+    <label>Traveler name (optional)<input id="stName" value="${esc(S.trip.traveler)}"></label>
+    <label>Trip title<input id="stTitle" value="${esc(S.trip.title)}"></label>
+    <label>Companion label<input id="stComp" value="${esc(S.trip.companion)}" placeholder="Dad"></label>
+    <div class="tworow">
+      <label>Start<input id="stStart" type="date" value="${esc(S.trip.start)}"></label>
+      <label>End<input id="stEnd" type="date" value="${esc(S.trip.end)}"></label>
+    </div>
+    <fieldset><legend>Interests</legend>
+      ${INTEREST_OPTIONS.map(i => `<label class="chk"><input type="checkbox" data-int="${esc(i)}" ${S.trip.interests.includes(i) ? "checked" : ""}> ${esc(i)}</label>`).join("")}
+    </fieldset>
+  </div>
+
+  <div class="card composer">
+    <h2>Progress style</h2>
+    <p class="muted small">The passport (stamps + saved-memory counts) is always on. Points are optional: 10 per completed mission at ordinary leisure stops. Quieter stops (Robben Island, District Six Museum, Holocaust &amp; Genocide Centre) never involve points. No timers, streaks, or leaderboards, ever.</p>
+    <label class="chk"><input type="checkbox" id="stPoints" ${S.prefs.points ? "checked" : ""}> Show points</label>
+  </div>
+
+  <div class="card composer">
+    <h2>Display</h2>
+    <label>Text size
+      <select id="stTS">${[["s", "Small"], ["m", "Medium"], ["l", "Large"], ["xl", "Extra large"]].map(([v, l]) => `<option value="${v}" ${S.prefs.textSize === v ? "selected" : ""}>${l}</option>`).join("")}</select></label>
+  </div>
+
+  <div class="card composer">
+    <h2>Backups</h2>
+    <p class="muted small">Everything lives in this browser on this device — nothing syncs anywhere. Browsers can clear site data, so a backup file is how memories survive. A full backup is a ZIP with your text <b>and</b> photos/audio; JSON alone is not a complete backup.</p>
+    <div class="btnrow">
+      <button class="btn primary" id="stExport">Download full backup (ZIP)</button>
+      <button class="btn" id="stExportJson">Text-only export (incomplete)</button>
+    </div>
+    <label class="btn filebtn">Import backup<input type="file" id="stImport" accept=".zip,.json" hidden></label>
+    <p id="stStorage" class="muted small"></p>
+    <div class="btnrow"><button class="btn" id="stPersist">Ask browser to protect this data</button></div>
+  </div>
+
+  <div class="card composer">
+    <h2>Honest limitations</h2>
+    <ul class="small">
+      <li>Opening times, prices, and exhibits are never stored as "live" facts here — the linked official pages are the current word. Sourced pin locations were checked ${VERIFIED} and can change.</li>
+      <li>The map, external links, and directions need internet. Destination text, prompts, and your journal work offline once this file is saved on your device.</li>
+      <li>This page can't install as a full offline app by itself; save the file (or add it to your home screen via the browser menu) and it behaves like one, minus map tiles.</li>
+      <li>Voice notes and photos depend on browser support; a written description always counts equally.</li>
+      <li>No transcription, no cloud sync, no accounts, no tracking. Data stays on this device unless you export it.</li>
+      ${DB.fallback ? "<li><b>Right now:</b> durable storage is unavailable in this environment, so data is held in memory only and will be lost when the page closes. Save this file and open it in a normal browser (Chrome, Safari, Firefox) for real persistence.</li>" : ""}
+    </ul>
+  </div>
+
+  <div class="card composer danger">
+    <h2>Delete trip data</h2>
+    <p class="muted small">Removes every entry, photo, recording, and setting from this device. Export a backup first.</p>
+    <button class="btn" id="stWipe">Delete everything…</button>
+  </div>`;
+
+  const tSave = debounce(() => persist.trip(), 300);
+  $("#stName").oninput = e => { S.trip.traveler = e.target.value; tSave(); };
+  $("#stTitle").oninput = e => { S.trip.title = e.target.value; tSave(); };
+  $("#stComp").oninput = e => { S.trip.companion = e.target.value || "Dad"; tSave(); };
+  $("#stStart").onchange = e => { S.trip.start = e.target.value; tSave(); };
+  $("#stEnd").onchange = e => { S.trip.end = e.target.value; tSave(); };
+  $$("[data-int]").forEach(cb => cb.onchange = () => {
+    const i = cb.dataset.int;
+    S.trip.interests = cb.checked ? S.trip.interests.concat(i) : S.trip.interests.filter(x => x !== i); tSave();
+  });
+  $("#stPoints").onchange = e => { S.prefs.points = e.target.checked; persist.prefs(); toast(e.target.checked ? "Points on (never at quieter stops)" : "Points off — passport only"); };
+  $("#stTS").onchange = e => { S.prefs.textSize = e.target.value; document.documentElement.dataset.ts = e.target.value; persist.prefs(); };
+
+  $("#stExport").onclick = exportZip;
+  $("#stExportJson").onclick = exportJsonOnly;
+  $("#stImport").addEventListener("change", ev => { const f = ev.target.files[0]; if (f) importBackup(f); ev.target.value = ""; });
+  $("#stPersist").onclick = async () => {
+    if (navigator.storage && navigator.storage.persist) {
+      const ok = await navigator.storage.persist();
+      toast(ok ? "The browser agreed to protect this data. Backups are still wise." : "The browser didn't grant persistent storage. Keep backups.");
+    } else toast("This browser doesn't support persistent-storage requests. Keep backups.");
+  };
+  (async () => {
+    if (navigator.storage && navigator.storage.estimate) {
+      try {
+        const { usage, quota } = await navigator.storage.estimate();
+        $("#stStorage").textContent = `Storage used: ${(usage / 1048576).toFixed(1)} MB of about ${(quota / 1048576).toFixed(0)} MB available. If space runs low, export a backup, then delete old photos.`;
+      } catch (e) { /* fine */ }
+    }
+  })();
+  $("#stWipe").onclick = async () => {
+    const a = await confirmBox("Delete all trip data?", "Every entry, photo, recording, and setting on this device will be removed. This cannot be undone.", "Yes, continue");
+    if (!a) return;
+    const b = await confirmBox("Really delete everything?", "Last chance. If you haven't exported a backup, cancel and do that first.", "Delete it all");
+    if (!b) return;
+    await clearAllStores();
+    objURLs.forEach(u => URL.revokeObjectURL(u)); objURLs.clear();
+    S.entries = []; S.visits = {}; S.drafts = {}; S.mediaIndex = {};
+    Object.assign(S.trip, { title: "Cape Town Field Notes", traveler: "", start: "", end: "", interests: [], companion: "Dad" });
+    Object.assign(S.prefs, { points: false, textSize: "m", onboarded: true });
+    Object.assign(S.recap, { title: "", places: [], meal: "", photos: [], discoveries: [], dadMemory: "", remember: "" });
+    toast("All trip data deleted."); nav("#home");
+  };
+};
+
+/* ---------- backup / restore ---------- */
+async function ensureJSZip() {
+  if (window.JSZip) return true;
+  try { await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"); return !!window.JSZip; }
+  catch (e) { return false; }
+}
+function backupManifest() {
+  return {
+    app: "ctfn", version: 1, exportedAt: new Date().toISOString(),
+    trip: S.trip, prefs: S.prefs, visits: S.visits, drafts: S.drafts, recap: S.recap,
+    entries: S.entries,
+    media: Object.entries(S.mediaIndex).map(([id, m]) => ({ id, mime: m.mime, name: m.name, caption: m.caption, entryId: m.entryId, type: m.type, file: "media/" + id + "." + extFor(m.mime) }))
+  };
+}
+function downloadBlob(blob, name) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+}
+async function exportZip() {
+  if (!(await ensureJSZip())) { toast("The ZIP library needs internet to load once. Use text-only export for now (it omits media)."); return; }
+  toast("Building backup…");
+  const zip = new JSZip();
+  const man = backupManifest();
+  zip.file("backup.json", JSON.stringify(man, null, 2));
+  let missing = 0;
+  for (const m of man.media) {
+    const rec = await medGet(m.id);
+    if (rec && rec.blob) zip.file(m.file, rec.blob); else missing++;
+  }
+  const blob = await zip.generateAsync({ type: "blob" });
+  downloadBlob(blob, "cape-town-field-notes-backup-" + todayISO() + ".zip");
+  toast("Backup downloaded" + (missing ? " (" + missing + " media file(s) were missing and noted)" : "") + ".");
+}
+function exportJsonOnly() {
+  const man = backupManifest();
+  man.note = "TEXT-ONLY EXPORT — photos and audio are NOT included. This is not a complete backup.";
+  downloadBlob(new Blob([JSON.stringify(man, null, 2)], { type: "application/json" }), "cape-town-field-notes-TEXT-ONLY-" + todayISO() + ".json");
+  toast("Text-only export downloaded. Remember: it contains no photos or audio.");
+}
+function validManifest(man) {
+  return man && man.app === "ctfn" && typeof man.version === "number" && man.version <= 1 && Array.isArray(man.entries) && Array.isArray(man.media || []);
+}
+async function importBackup(file) {
+  let man = null; let zip = null;
+  try {
+    if (/\.zip$/i.test(file.name) || file.type === "application/zip") {
+      if (!(await ensureJSZip())) { toast("Reading a ZIP needs the ZIP library, which needs internet once."); return; }
+      zip = await JSZip.loadAsync(file);
+      const jf = zip.file("backup.json");
+      if (!jf) { toast("That ZIP has no backup.json — not a Field Notes backup."); return; }
+      man = JSON.parse(await jf.async("string"));
+    } else {
+      man = JSON.parse(await file.text());
+    }
+  } catch (e) { toast("That file couldn't be read as a backup."); return; }
+  if (!validManifest(man)) { toast("That file isn't a valid Field Notes backup (or is from a newer version)."); return; }
+
+  const replace = await confirmBox("Restore or merge?", "Confirm = REPLACE everything on this device with the backup. Cancel = MERGE (adds anything new, never overwrites existing entries).", "Replace");
+  if (replace) {
+    await clearAllStores();
+    S.entries = []; S.mediaIndex = {}; S.visits = {}; S.drafts = {};
+  }
+  let addedE = 0, skippedE = 0, addedM = 0, missingM = 0;
+  Object.assign(S.trip, man.trip || {}); Object.assign(S.prefs, man.prefs || {});
+  if (replace) { S.visits = man.visits || {}; S.drafts = man.drafts || {}; Object.assign(S.recap, man.recap || {}); }
+  else {
+    for (const [k, v] of Object.entries(man.visits || {})) if (!S.visits[k]) S.visits[k] = v;
+  }
+  const haveIds = new Set(S.entries.map(e => e.id));
+  for (const e of man.entries) {
+    if (haveIds.has(e.id)) { skippedE++; continue; }
+    if (!e.id || typeof e.text !== "string") { skippedE++; continue; }
+    await entPut(e); S.entries.push(e); addedE++;
+  }
+  for (const m of (man.media || [])) {
+    if (S.mediaIndex[m.id]) continue;
+    let blob = null;
+    if (zip) { const zf = zip.file(m.file); if (zf) blob = await zf.async("blob"); }
+    if (!blob) { missingM++; continue; }
+    await medPut({ id: m.id, blob, mime: m.mime, type: m.type, name: m.name, caption: m.caption, entryId: m.entryId });
+    S.mediaIndex[m.id] = { mime: m.mime, name: m.name, caption: m.caption, entryId: m.entryId, type: m.type };
+    addedM++;
+  }
+  persist.trip(); persist.prefs(); persist.visits(); persist.drafts(); persist.recap();
+  toast(`Import done: ${addedE} entr${addedE === 1 ? "y" : "ies"} added, ${skippedE} skipped, ${addedM} media file(s) restored${missingM ? ", " + missingM + " media file(s) missing from the backup" : ""}.`, 6000);
+  route();
+}
+
+/* =========================================================
+   ONBOARDING + BOOT
+   ========================================================= */
+function showOnboarding() {
+  const ob = $("#onboard");
+  ob.innerHTML = `
+  <div class="obcard">
+    <p class="kicker">Cape Town Field Notes</p>
+    <h1>Find something. Learn something. Keep a memory.</h1>
+    <p class="muted">Make this trip your own. Everything below is optional — no account, no questionnaire, and you can change it all later in Settings.</p>
+    <label>Your name (optional)<input id="obName" autocomplete="off"></label>
+    <label>Trip title<input id="obTitle" value="Cape Town Field Notes"></label>
+    <div class="tworow">
+      <label>Start (optional)<input id="obStart" type="date"></label>
+      <label>End (optional)<input id="obEnd" type="date"></label>
+    </div>
+    <label>Traveling with<input id="obComp" value="Dad"></label>
+    <fieldset><legend>What are you curious about? (optional)</legend>
+      ${INTEREST_OPTIONS.map(i => `<label class="chk"><input type="checkbox" data-obint="${esc(i)}"> ${esc(i)}</label>`).join("")}
+    </fieldset>
+    <div class="btnrow">
+      <button class="btn primary" id="obGo">Start exploring</button>
+      <button class="btn" id="obSkip">Skip for now</button>
+    </div>
+  </div>`;
+  ob.classList.add("show");
+  const done = save => {
+    if (save) {
+      S.trip.traveler = $("#obName").value.trim();
+      S.trip.title = $("#obTitle").value.trim() || "Cape Town Field Notes";
+      S.trip.start = $("#obStart").value; S.trip.end = $("#obEnd").value;
+      S.trip.companion = $("#obComp").value.trim() || "Dad";
+      S.trip.interests = $$("[data-obint]").filter(c => c.checked).map(c => c.dataset.obint);
+    }
+    S.prefs.onboarded = true;
+    persist.trip(); persist.prefs();
+    ob.classList.remove("show"); ob.innerHTML = "";
+    route();
+  };
+  $("#obGo").onclick = () => done(true);
+  $("#obSkip").onclick = () => done(false);
+}
+
+async function boot() {
+  await openDB();
+  await loadState();
+  document.documentElement.dataset.ts = S.prefs.textSize || "m";
+  if (DB.fallback) {
+    $("#storagewarn").hidden = false;
+  }
+  $$(".bnav button").forEach(b => b.addEventListener("click", () => nav("#" + b.dataset.route)));
+  $("#menuBtn").addEventListener("click", () => nav("#settings"));
+  window.addEventListener("offline", () => toast("You're offline. Your notes and prompts still work; the map and links need internet."));
+  if (!S.prefs.onboarded) showOnboarding(); else route();
+}
+document.addEventListener("DOMContentLoaded", boot);
+
+</script>
+</body>
+</html>
